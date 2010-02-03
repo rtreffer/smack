@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smack.ConnectionCreationListener;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.RosterListener;
@@ -261,7 +262,7 @@ public class JingleManager implements JingleSessionListener {
         // The ServiceDiscoveryManager class should have been already
         // initialized
         XMPPConnection.addConnectionCreationListener(new ConnectionCreationListener() {
-            public void connectionCreated(XMPPConnection connection) {
+            public void connectionCreated(Connection connection) {
                 JingleManager.setServiceEnabled(connection, true);
             }
         });
@@ -279,7 +280,7 @@ public class JingleManager implements JingleSessionListener {
      *                   disabled
      * @param enabled    indicates if the service will be enabled or disabled
      */
-    public synchronized static void setServiceEnabled(XMPPConnection connection, boolean enabled) {
+    public synchronized static void setServiceEnabled(Connection connection, boolean enabled) {
         if (isServiceEnabled(connection) == enabled) {
             return;
         }
@@ -298,7 +299,7 @@ public class JingleManager implements JingleSessionListener {
      * @return a boolean indicating if the Jingle support is enabled for the
      *         given connection
      */
-    public static boolean isServiceEnabled(XMPPConnection connection) {
+    public static boolean isServiceEnabled(Connection connection) {
         return ServiceDiscoveryManager.getInstanceFor(connection).includesFeature(Jingle.NAMESPACE);
     }
 

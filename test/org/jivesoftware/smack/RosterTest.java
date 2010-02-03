@@ -366,7 +366,7 @@ public class RosterTest extends SmackTestCase {
 
 
             // Log in from another resource so we can test the roster
-            XMPPConnection con2 = createConnection();
+            Connection con2 = createConnection();
             con2.connect();
             con2.login(getUsername(0), getUsername(0), "MyNewResource");
 
@@ -486,7 +486,7 @@ public class RosterTest extends SmackTestCase {
             // Create another connection for the same user of connection 1
             ConnectionConfiguration connectionConfiguration =
                     new ConnectionConfiguration(getHost(), getPort(), getServiceName());
-            XMPPConnection conn4 = new XMPPConnection(connectionConfiguration);
+            Connection conn4 = new XMPPConnection(connectionConfiguration);
             conn4.connect();
             conn4.login(getUsername(1), getUsername(1), "Home");
 
@@ -559,7 +559,7 @@ public class RosterTest extends SmackTestCase {
         // Create another connection for the same user of connection 1
         ConnectionConfiguration connectionConfiguration =
                 new ConnectionConfiguration(getHost(), getPort(), getServiceName());
-        XMPPConnection conn4 = new XMPPConnection(connectionConfiguration);
+        Connection conn4 = new XMPPConnection(connectionConfiguration);
         conn4.connect();
         conn4.login(getUsername(1), getUsername(1), "Home");
 
@@ -624,7 +624,7 @@ public class RosterTest extends SmackTestCase {
         // Create another connection for the same user of connection 0
         ConnectionConfiguration connectionConfiguration =
                 new ConnectionConfiguration(getHost(), getPort(), getServiceName());
-        XMPPConnection conn2 = new XMPPConnection(connectionConfiguration);
+        Connection conn2 = new XMPPConnection(connectionConfiguration);
         conn2.connect();
         conn2.login(getUsername(0), getUsername(0), "Home");
 
@@ -746,7 +746,7 @@ public class RosterTest extends SmackTestCase {
     }
 
     protected void setUp() throws Exception {
-        //XMPPConnection.DEBUG_ENABLED = false;
+        //Connection.DEBUG_ENABLED = false;
 
         try  {
             Thread.sleep(500);

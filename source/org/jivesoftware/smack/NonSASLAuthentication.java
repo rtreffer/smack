@@ -38,9 +38,9 @@ import java.io.IOException;
  */
 class NonSASLAuthentication implements UserAuthentication {
 
-    private XMPPConnection connection;
+    private Connection connection;
 
-    public NonSASLAuthentication(XMPPConnection connection) {
+    public NonSASLAuthentication(Connection connection) {
         super();
         this.connection = connection;
     }
@@ -138,7 +138,7 @@ class NonSASLAuthentication implements UserAuthentication {
             return response.getTo();
         }
         else {
-            return connection.serviceName + "/" + ((Authentication) response).getResource();
+            return connection.getServiceName() + "/" + ((Authentication) response).getResource();
         }
     }
 }
