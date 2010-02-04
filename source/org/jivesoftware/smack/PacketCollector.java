@@ -23,7 +23,8 @@ package org.jivesoftware.smack;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Packet;
 
-import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Provides a mechanism to collect packets into a result queue that pass a
@@ -48,7 +49,7 @@ public class PacketCollector {
     private static final int MAX_PACKETS = 65536;
 
     private PacketFilter packetFilter;
-    private LinkedList<Packet> resultQueue;
+    private LinkedBlockingQueue<Packet> resultQueue;
     private Connection conection;
     private boolean cancelled = false;
 
@@ -62,7 +63,7 @@ public class PacketCollector {
     protected PacketCollector(Connection conection, PacketFilter packetFilter) {
         this.conection = conection;
         this.packetFilter = packetFilter;
-        this.resultQueue = new LinkedList<Packet>();
+        this.resultQueue = new LinkedBlockingQueue<Packet>(MAX_PACKETS);
     }
 
     /**
@@ -73,8 +74,8 @@ public class PacketCollector {
     public void cancel() {
         // If the packet collector has already been cancelled, do nothing.
         if (!cancelled) {
-            cancelled = true;
             conection.removePacketCollector(this);
+            cancelled = true;
         }
     }
 
@@ -96,13 +97,8 @@ public class PacketCollector {
      * @return the next packet result, or <tt>null</tt> if there are no more
      *      results.
      */
-    public synchronized Packet pollResult() {
-        if (resultQueue.isEmpty()) {
-            return null;
-        }
-        else {
-            return resultQueue.removeLast();
-        }
+    public Packet pollResult() {
+        return resultQueue.poll();
     }
 
     /**
@@ -111,17 +107,12 @@ public class PacketCollector {
      *
      * @return the next available packet.
      */
-    public synchronized Packet nextResult() {
-        // Wait indefinitely until there is a result to return.
-        while (resultQueue.isEmpty()) {
+    public Packet nextResult() {
+        while (true) {
             try {
-                wait();
-            }
-            catch (InterruptedException ie) {
-                // Ignore.
-            }
+                return resultQueue.take();
+            } catch (InterruptedException e) { /* ignore */ }
         }
-        return resultQueue.removeLast();
     }
 
     /**
@@ -132,21 +123,14 @@ public class PacketCollector {
      * @param timeout the amount of time to wait for the next packet (in milleseconds).
      * @return the next available packet.
      */
-    public synchronized Packet nextResult(long timeout) {
-        if (!resultQueue.isEmpty()) {
-            return resultQueue.removeLast();
-        }
-        // Wait up to the specified amount of time for a result.
+    public Packet nextResult(long timeout) {
         long endTime = System.currentTimeMillis() + timeout;
-        // Keep waiting until the specified amount of time has elapsed, or
-        // a packet is available to return.
-        while (resultQueue.isEmpty() && (System.currentTimeMillis() < endTime)) {
+        do {
             try {
-                wait(Math.abs(System.currentTimeMillis() - endTime));
-            } catch (InterruptedException ie) { /* Ignore */ }
-        }
-        if (resultQueue.isEmpty()) { return null; }
-        return resultQueue.removeLast();
+                return resultQueue.poll(timeout, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) { /* ignore */ }
+        } while (System.currentTimeMillis() < endTime);
+        return null;
     }
 
     /**
@@ -160,14 +144,7 @@ public class PacketCollector {
             return;
         }
         if (packetFilter == null || packetFilter.accept(packet)) {
-            // If the max number of packets has been reached, remove the oldest one.
-            if (resultQueue.size() == MAX_PACKETS) {
-                resultQueue.removeLast();
-            }
-            // Add the new packet.
-            resultQueue.addFirst(packet);
-            // Notify waiting threads a result is available.
-            notifyAll();
+            while (!resultQueue.offer(packet)) { resultQueue.poll(); }
         }
     }
 }
