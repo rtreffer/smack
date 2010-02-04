@@ -145,7 +145,7 @@ public class PacketCollector {
                 wait(Math.abs(System.currentTimeMillis() - endTime));
             } catch (InterruptedException ie) { /* Ignore */ }
         }
-        if (resultQueue.isEmpty) { return null; }
+        if (resultQueue.isEmpty()) { return null; }
         return resultQueue.removeLast();
     }
 
