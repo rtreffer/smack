@@ -208,9 +208,11 @@ public class BOSHConnection extends Connection {
 
         // Wait for the response from the server
         synchronized (this) {
-            if (!connected) {
+            long endTime = System.currentTimeMillis() +
+                           SmackConfiguration.getPacketReplyTimeout() * 6;
+            while ((!connected) && (System.currentTimeMillis() < endTime)) {
                 try {
-                    wait(SmackConfiguration.getPacketReplyTimeout()*6);
+                    wait(Math.abs(endTime - System.currentTimeMillis()));
                 }
                 catch (InterruptedException e) {}
             }
