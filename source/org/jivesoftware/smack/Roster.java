@@ -832,10 +832,7 @@ public class Roster {
                 }
 
                 // Find the list of groups that the user currently belongs to.
-                List<String> currentGroupNames = new ArrayList<String>();
-                for (RosterGroup rosterGroup : entry.getGroups()) {
-                    currentGroupNames.add(rosterGroup.getName());
-                }
+                List<String> currentGroupNames = new ArrayList<String>(item.getGroupNames());
 
                 // If the packet is not of the type REMOVE then add the entry to the groups
                 if (!RosterPacket.ItemType.remove.equals(item.getItemType())) {
