@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smack.ConnectionCreationListener;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.RosterListener;

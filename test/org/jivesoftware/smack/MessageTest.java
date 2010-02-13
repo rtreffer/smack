@@ -61,7 +61,7 @@ public class MessageTest extends SmackTestCase {
             fail(e.getMessage());
         }
 
-        Message message = (Message) collector.nextResult(2500);
+        Message message = (Message) collector.nextResult(5000);
         assertNotNull("Message not recieved from remote user", message);
     }
 
@@ -172,7 +172,7 @@ public class MessageTest extends SmackTestCase {
         // Check that the connection that sent the message is still connected
         assertTrue("Connection was closed", getConnection(0).isConnected());
         // Check that the message was received
-        Message rcv = (Message) collector.nextResult(1000);
+        Message rcv = (Message) collector.nextResult(5000);
         assertNotNull("No Message was received", rcv);
 
         // Send the second message
@@ -180,7 +180,7 @@ public class MessageTest extends SmackTestCase {
         // Check that the connection that sent the message is still connected
         assertTrue("Connection was closed", getConnection(0).isConnected());
         // Check that the second message was received
-        rcv = (Message) collector.nextResult(1000);
+        rcv = (Message) collector.nextResult(5000);
         assertNotNull("No Message was received", rcv);
     }
 
@@ -197,7 +197,7 @@ public class MessageTest extends SmackTestCase {
         // Create another connection for the same user of connection 1
         ConnectionConfiguration connectionConfiguration =
                 new ConnectionConfiguration(getHost(), getPort(), getServiceName());
-        XMPPConnection conn3 = new XMPPConnection(connectionConfiguration);
+        Connection conn3 = new XMPPConnection(connectionConfiguration);
         conn3.connect();
         conn3.login(getUsername(0), getUsername(0), "Home");
         // Set this connection as highest priority
@@ -222,12 +222,12 @@ public class MessageTest extends SmackTestCase {
         chat.sendMessage("Test 2");
 
         // Check that messages were sent to resource with highest priority
-        Message message = (Message) collector.nextResult(2000);
+        Message message = (Message) collector.nextResult(5000);
         assertNull("Resource with lowest priority got the message", message);
-        message = (Message) coll3.nextResult(2000);
+        message = (Message) coll3.nextResult(5000);
         assertNotNull(message);
         assertEquals("Test 1", message.getBody());
-        message = (Message) coll3.nextResult(1000);
+        message = (Message) coll3.nextResult(5000);
         assertNotNull(message);
         assertEquals("Test 2", message.getBody());
 
@@ -246,7 +246,7 @@ public class MessageTest extends SmackTestCase {
         // Create another connection for the same user of connection 1
         ConnectionConfiguration connectionConfiguration =
                 new ConnectionConfiguration(getHost(), getPort(), getServiceName());
-        XMPPConnection conn3 = new XMPPConnection(connectionConfiguration);
+        Connection conn3 = new XMPPConnection(connectionConfiguration);
         conn3.connect();
         conn3.login(getUsername(0), getUsername(0), "Home");
         // Set this connection as highest priority
@@ -271,12 +271,12 @@ public class MessageTest extends SmackTestCase {
         chat.sendMessage("Test 2");
 
         // Check that messages were sent to resource with highest priority
-        Message message = (Message) coll3.nextResult(2000);
+        Message message = (Message) coll3.nextResult(5000);
         assertNull("Resource with lowest show value got the message", message);
-        message = (Message) collector.nextResult(2000);
+        message = (Message) collector.nextResult(5000);
         assertNotNull(message);
         assertEquals("Test 1", message.getBody());
-        message = (Message) collector.nextResult(1000);
+        message = (Message) collector.nextResult(5000);
         assertNotNull(message);
         assertEquals("Test 2", message.getBody());
 
@@ -295,7 +295,7 @@ public class MessageTest extends SmackTestCase {
         // Create another connection for the same user of connection 1
         ConnectionConfiguration connectionConfiguration =
                 new ConnectionConfiguration(getHost(), getPort(), getServiceName());
-        XMPPConnection conn3 = new XMPPConnection(connectionConfiguration);
+        Connection conn3 = new XMPPConnection(connectionConfiguration);
         conn3.connect();
         conn3.login(getUsername(0), getUsername(0), "Home");
         // Set this connection as highest priority
@@ -311,7 +311,7 @@ public class MessageTest extends SmackTestCase {
 
         connectionConfiguration =
                 new ConnectionConfiguration(getHost(), getPort(), getServiceName());
-        XMPPConnection conn4 = new XMPPConnection(connectionConfiguration);
+        Connection conn4 = new XMPPConnection(connectionConfiguration);
         conn4.connect();
         conn4.login(getUsername(0), getUsername(0), "Home2");
         presence = new Presence(Presence.Type.available);
@@ -337,14 +337,14 @@ public class MessageTest extends SmackTestCase {
         chat.sendMessage("Test 2");
 
         // Check that messages were sent to resource with highest priority
-        Message message = (Message) collector.nextResult(2000);
+        Message message = (Message) collector.nextResult(5000);
         assertNull("Resource with oldest activity got the message", message);
-        message = (Message) coll4.nextResult(2000);
+        message = (Message) coll4.nextResult(5000);
         assertNull(message);
-        message = (Message) coll3.nextResult(2000);
+        message = (Message) coll3.nextResult(5000);
         assertNotNull(message);
         assertEquals("Test 1", message.getBody());
-        message = (Message) coll3.nextResult(1000);
+        message = (Message) coll3.nextResult(5000);
         assertNotNull(message);
         assertEquals("Test 2", message.getBody());
 
@@ -379,7 +379,7 @@ public class MessageTest extends SmackTestCase {
         chat.sendMessage("Test 2");
 
         // Check that messages were sent to resource with highest priority
-        Message message = (Message) collector.nextResult(2000);
+        Message message = (Message) collector.nextResult(5000);
         assertNull("Messages were not stored offline", message);
 
         // Set this connection with positive priority
@@ -391,10 +391,10 @@ public class MessageTest extends SmackTestCase {
         // Let the server process the change in presences
         Thread.sleep(200);
 
-        message = (Message) collector.nextResult(2000);
+        message = (Message) collector.nextResult(5000);
         assertNotNull("Offline messages were not delivered", message);
         assertEquals("Test 1", message.getBody());
-        message = (Message) collector.nextResult(1000);
+        message = (Message) collector.nextResult(5000);
         assertNotNull(message);
         assertEquals("Test 2", message.getBody());
     }
