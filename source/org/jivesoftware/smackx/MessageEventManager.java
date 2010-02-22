@@ -54,7 +54,7 @@ public class MessageEventManager {
     /**
      * Creates a new message event manager.
      *
-     * @param con a Connection to a XMPP server.
+     * @param con a Connection.
      */
     public MessageEventManager(Connection con) {
         this.con = con;
