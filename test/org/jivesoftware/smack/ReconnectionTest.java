@@ -21,7 +21,7 @@ public class ReconnectionTest extends SmackTestCase {
 
     public void testAutomaticReconnection() throws Exception {
         XMPPConnection connection = getConnection(0);
-        XMPPConnectionTestListener listener = new XMPPConnectionTestListener();
+        ConnectionTestListener listener = new ConnectionTestListener();
         connection.addConnectionListener(listener);
 
         // Simulates an error in the connection
@@ -56,7 +56,7 @@ public class ReconnectionTest extends SmackTestCase {
         // Executes some server interaction testing the connection
         executeSomeServerInteraction(connection);
 
-        XMPPConnectionTestListener listener = new XMPPConnectionTestListener();
+        ConnectionTestListener listener = new ConnectionTestListener();
         connection.addConnectionListener(listener);
 
         // Simulates an error in the connection
@@ -80,7 +80,7 @@ public class ReconnectionTest extends SmackTestCase {
      */
     public void testManualReconnectionWithCancelation() throws Exception {
         XMPPConnection connection = getConnection(0);
-        XMPPConnectionTestListener listener = new XMPPConnectionTestListener();
+        ConnectionTestListener listener = new ConnectionTestListener();
         connection.addConnectionListener(listener);
 
         // Produces a connection error
@@ -112,7 +112,7 @@ public class ReconnectionTest extends SmackTestCase {
         XMPPConnection connection = getConnection(0);
         String username = connection.getConfiguration().getUsername();
         String password = connection.getConfiguration().getPassword();
-        XMPPConnectionTestListener listener = new XMPPConnectionTestListener();
+        ConnectionTestListener listener = new ConnectionTestListener();
         connection.addConnectionListener(listener);
 
         // Produces a normal disconnection
@@ -137,9 +137,9 @@ public class ReconnectionTest extends SmackTestCase {
      * Closes the connection and then reconnects.
      */
     public void testAnonymousReconnection() throws Exception {
-        XMPPConnection connection = createConnection();
+        Connection connection = createConnection();
         connection.connect();
-        XMPPConnectionTestListener listener = new XMPPConnectionTestListener();
+        ConnectionTestListener listener = new ConnectionTestListener();
         connection.addConnectionListener(listener);
 
         // Makes the anounymous login
@@ -169,7 +169,7 @@ public class ReconnectionTest extends SmackTestCase {
     /**
      * Execute some server interaction in order to test that the regenerated connection works fine.
      */
-    private void executeSomeServerInteraction(XMPPConnection connection) throws XMPPException {
+    private void executeSomeServerInteraction(Connection connection) throws XMPPException {
         PrivacyListManager privacyManager = PrivacyListManager.getInstanceFor(connection);
         privacyManager.getPrivacyLists();
     }
@@ -178,7 +178,7 @@ public class ReconnectionTest extends SmackTestCase {
         return 1;
     }
 
-    private class XMPPConnectionTestListener implements ConnectionListener {
+    private class ConnectionTestListener implements ConnectionListener {
 
         // Variables to support listener notifications verification
         private boolean connectionClosed = false;
