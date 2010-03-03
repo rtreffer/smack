@@ -347,9 +347,6 @@ public class XMPPConnection extends Connection {
         if (roster == null) {
             return null;
         }
-        if (!config.isRosterLoadedAtLogin()) {
-            roster.reload();
-        }
         // If this is the first time the user has asked for the roster after calling
         // login, we want to wait for the server to send back the user's roster. This
         // behavior shields API users from having to worry about the fact that roster
