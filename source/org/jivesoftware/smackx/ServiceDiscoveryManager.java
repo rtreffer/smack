@@ -783,9 +783,9 @@ public class ServiceDiscoveryManager {
     }
 
 
-    public static void spam() {
+   /* public static void spam() {
         for (ServiceDiscoveryManager m : instances.values()) {
             m.capsManager.spam();
         }
-    }
+    }*/
 }
