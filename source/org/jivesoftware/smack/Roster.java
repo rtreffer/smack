@@ -182,7 +182,11 @@ public class Roster {
      * reloaded at a later point when the server responds to the reload request.
      */
     public void reload() {
-        connection.sendPacket(new RosterPacket());
+    	RosterPacket packet = new RosterPacket();
+    	if(persistentStorage!=null){
+    		packet.setVersion(persistentStorage.getRosterVersion());
+    	}
+        connection.sendPacket(packet);
     }
 
     /**
