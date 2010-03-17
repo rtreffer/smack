@@ -70,4 +70,10 @@ public interface RosterStorage {
 	 * @param entry the entry to be updated
 	 */
 	public void updateLocalEntry(RosterEntry entry);
+	/**
+	 * Return a specific roster entry identified by the bare JID
+	 * @param bareJid The bare JID of the entry to retrieve
+	 * @return
+	 */
+	public RosterEntry getEntry(String bareJid);
 }

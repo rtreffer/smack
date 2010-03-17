@@ -309,7 +309,11 @@ public class Roster {
      * @return the number of entries in the roster.
      */
     public int getEntryCount() {
-        return getEntries().size();
+    	if(persistentStorage==null){
+    		return getEntries().size();
+    	}else{
+    		return persistentStorage.getEntryCount();
+    	}
     }
 
     /**
@@ -319,15 +323,19 @@ public class Roster {
      * @return all entries in the roster.
      */
     public Collection<RosterEntry> getEntries() {
-        Set<RosterEntry> allEntries = new HashSet<RosterEntry>();
-        // Loop through all roster groups and add their entries to the answer
-        for (RosterGroup rosterGroup : getGroups()) {
-            allEntries.addAll(rosterGroup.getEntries());
-        }
-        // Add the roster unfiled entries to the answer
-        allEntries.addAll(unfiledEntries);
-
-        return Collections.unmodifiableCollection(allEntries);
+    	if(persistentStorage==null){
+	        Set<RosterEntry> allEntries = new HashSet<RosterEntry>();
+	        // Loop through all roster groups and add their entries to the answer
+	        for (RosterGroup rosterGroup : getGroups()) {
+	            allEntries.addAll(rosterGroup.getEntries());
+	        }
+	        // Add the roster unfiled entries to the answer
+	        allEntries.addAll(unfiledEntries);
+	
+	        return Collections.unmodifiableCollection(allEntries);
+    	}else{
+    		return Collections.unmodifiableCollection(persistentStorage.getAllRosterEntries());
+    	}
     }
 
     /**
@@ -362,7 +370,14 @@ public class Roster {
         if (user == null) {
             return null;
         }
-        return entries.get(user.toLowerCase());
+        if(entries.containsKey(user.toLowerCase())){
+        	return entries.get(user.toLowerCase());
+        }
+        else if(persistentStorage!=null){
+        	RosterEntry entry = persistentStorage.getEntry(user.toLowerCase());
+        	entries.put(user.toLowerCase(), entry);
+        }
+        return null;
     }
 
     /**
@@ -385,7 +400,17 @@ public class Roster {
      * @return the roster group with the specified name.
      */
     public RosterGroup getGroup(String name) {
-        return groups.get(name);
+    	if(groups.containsKey(name)){
+    		return groups.get(name);
+    	}
+    	else if(persistentStorage!=null){
+    		RosterGroup group = persistentStorage.getRosterGroup(name);
+    		if(group!=null){
+    			groups.put(name, group);
+    			return group;
+    		}
+    	}
+    	return null;
     }
 
     /**
@@ -394,7 +419,11 @@ public class Roster {
      * @return the number of groups in the roster.
      */
     public int getGroupCount() {
-        return groups.size();
+    	if(persistentStorage==null){
+    		return groups.size();
+    	}else{
+    		return persistentStorage.getGroupCount();
+    	}
     }
 
     /**
@@ -403,7 +432,11 @@ public class Roster {
      * @return an iterator for all roster groups.
      */
     public Collection<RosterGroup> getGroups() {
-        return Collections.unmodifiableCollection(groups.values());
+    	if(persistentStorage==null){
+    		return Collections.unmodifiableCollection(groups.values());
+    	}else{
+    		return Collections.unmodifiableCollection(persistentStorage.getAllRosterGroups());
+    	}
     }
 
     /**
