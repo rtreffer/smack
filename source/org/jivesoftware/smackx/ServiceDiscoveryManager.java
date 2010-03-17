@@ -21,16 +21,27 @@
 package org.jivesoftware.smackx;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.filter.PacketExtensionFilter;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.filter.PacketIDFilter;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.PacketExtension;
+import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.XMPPError;
+import org.jivesoftware.smack.provider.PacketExtensionProvider;
+import org.jivesoftware.smack.provider.ProviderManager;
+import org.jivesoftware.smack.util.Base64;
 import org.jivesoftware.smackx.packet.DiscoverInfo;
 import org.jivesoftware.smackx.packet.DiscoverItems;
 import org.jivesoftware.smackx.packet.DataForm;
+import org.jivesoftware.smackx.packet.DiscoverInfo.Identity;
+import org.jivesoftware.smackx.packet.DiscoverItems.Item;
+import org.xmlpull.v1.XmlPullParser;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -46,9 +57,168 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Gaston Dombiak
  */
 public class ServiceDiscoveryManager {
+	
+private class CapsInfoProvider implements NodeInformationProvider{
+		
+		private String node;
+		private List<String> features = new ArrayList<String>();
+		private Identity id;
+		
+		public CapsInfoProvider(String node, List<String> features, Identity id){
+			this.node = node;
+			this.features = features;
+			this.id = id;
+		}
+		
+		public String getNode(){
+			return node;
+		}
+
+		public List<String> getNodeFeatures() {
+			return features;
+		}
+
+		public List<Identity> getNodeIdentities() {
+			ArrayList<Identity> ids = new ArrayList<Identity>();
+			ids.add(id);
+			return ids;
+		}
+
+		public List<Item> getNodeItems() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
+	
+	public class CapsListener implements PacketListener{
+
+		public void processPacket(Packet packet) {
+			CapsVersionExtension ext =
+				(CapsVersionExtension)packet.getExtension("c", ServiceDiscoveryManager.CAPS_NS);
+			if(ext!=null && ext.getNode()!=null && ext.getVersion()!=null){
+				String ver = ext.getNode()+"#"+ext.getVersion();
+				String user = packet.getFrom();
+				addUserCapsNode(user,ver);
+			}
+		}
+	}
+	
+	public static class CapsVersionProvider implements PacketExtensionProvider{
+
+		public PacketExtension parseExtension(XmlPullParser parser)
+				throws Exception {
+			boolean done=false;
+			String hash=null;
+			String version=null;
+			String node=null;
+			while(!done){
+				
+				if(parser.getEventType()==XmlPullParser.START_TAG &&
+						parser.getName().equalsIgnoreCase("c")){
+					hash = parser.getAttributeValue(null, "hash");
+					version = parser.getAttributeValue(null, "ver");
+					node = parser.getAttributeValue(null, "node");
+				}
+				
+				if(parser.getEventType()==XmlPullParser.END_TAG &&
+						parser.getName().equalsIgnoreCase("c")){
+					done=true;
+				}
+				else{
+					parser.next();
+				}
+			}
+			
+			//if(hash !=null && version != null && node != null){
+			//It seems that we have to always return an extension object and shouldn't
+			//return null or throw an exception
+			return new CapsVersionExtension(node,version,hash);
+			//}
+			//Log.w("DiscoManager","Wasn't a Caps Extension");
+			//return null;
+		}
+		
+	}
+	
+	public static class CapsVersionExtension implements PacketExtension{
+		
+		public static final String elementName="c";
+		public static final String NS=ServiceDiscoveryManager.CAPS_NS;
+		
+		private String hash="sha-1";
+		private String node;
+		private String version;
+		
+		public CapsVersionExtension(String node, String version){
+			this.node = node;
+			this.version = version;
+		}
+		
+		public CapsVersionExtension(String node, String version, String hash){
+			this(node,version);
+			this.hash = hash;
+		}
+
+		public String getElementName() {
+			return elementName;
+		}
+
+		public String getNamespace() {
+			return NS;
+		}
+
+		public String toXML() {
+			String out="<c xmlns=\""+NS+"\" "+
+				"hash=\""+hash+"\" "+
+				"node=\""+node+"\" "+
+				"ver=\""+version+"\"/>";
+			return out;
+		}
+		
+		public String getNode(){
+			return node;
+		}
+		
+		public String getVersion(){
+			return version;
+		}
+	}
+	
+	private class CapsInterceptor implements PacketInterceptor{
+
+		public void interceptPacket(Packet arg0) {
+			arg0.addExtension(new CapsVersionExtension(entityNode,currentCapsVersion));
+			presenceSend = true;
+		}
+	}
 
     private static String identityName = "Smack";
     private static String identityType = "pc";
+    private static String entityNode = "http://www.igniterealtime.org/projects/smack/";
+    
+    public static final String HASH_METHOD = "sha-1";
+    public static final String HASH_METHOD_CAPS = "SHA-1";
+    public static final String CAPS_NS="http://jabber.org/protocol/caps";
+    
+    private static Map<String,DiscoverInfo> caps =
+        new ConcurrentHashMap<String,DiscoverInfo>();
+    
+    private Map<String,String> userCaps =
+        new ConcurrentHashMap<String,String>();
+    
+    private Map<String,DiscoverInfo> nonCapsInfos =
+    	new ConcurrentHashMap<String,DiscoverInfo>();
+    
+    private String currentCapsVersion = null;
+    
+    private boolean presenceSend=false;
+    
+    private CapsListener capsListener = new CapsListener();
+	private CapsInterceptor capsInterceptor = new CapsInterceptor();
+	//private QueryResponder queryResponder = new QueryResponder();
+	private PacketFilter interceptorFilter = new PacketTypeFilter(Presence.class);
+	private PacketFilter queryFilter = new PacketTypeFilter(DiscoverInfo.class);
+	private PacketFilter listenerFilter = new PacketExtensionFilter("c", CAPS_NS);
 
     private static Map<Connection, ServiceDiscoveryManager> instances =
             new ConcurrentHashMap<Connection, ServiceDiscoveryManager>();
@@ -67,6 +237,11 @@ public class ServiceDiscoveryManager {
             }
         });
     }
+    
+    static{
+		ProviderManager.getInstance().addExtensionProvider("c", ServiceDiscoveryManager.CAPS_NS, 
+				new CapsVersionProvider());
+	}
 
     /**
      * Creates a new ServiceDiscoveryManager for a given Connection. This means that the 
@@ -268,6 +443,10 @@ public class ServiceDiscoveryManager {
             }
         };
         connection.addPacketListener(packetListener, packetFilter);
+        addFeature("http://jabber.org/protocol/caps");
+        connection.addPacketListener(capsListener, listenerFilter);
+        connection.addPacketInterceptor(capsInterceptor, interceptorFilter);
+        //connection.addPacketInterceptor(queryResponder, queryFilter);
     }
 
     /**
@@ -344,6 +523,7 @@ public class ServiceDiscoveryManager {
     public void addFeature(String feature) {
         synchronized (features) {
             features.add(feature);
+            ownVerChanged();
         }
     }
 
@@ -411,7 +591,28 @@ public class ServiceDiscoveryManager {
      * @throws XMPPException if the operation failed for some reason.
      */
     public DiscoverInfo discoverInfo(String entityID) throws XMPPException {
-        return discoverInfo(entityID, null);
+       // return discoverInfo(entityID, null);
+    	DiscoverInfo info = null;
+		if(userCaps.containsKey(entityID)){
+			String capsVersion = userCaps.get(entityID);
+			if(caps.containsKey(capsVersion)){
+				return caps.get(capsVersion);
+			}
+			else{
+				info = discoverInfo(entityID, capsVersion);
+				caps.put(capsVersion, info);
+			}
+		}
+		else{
+			if(nonCapsInfos.containsKey(entityID)){
+				info = nonCapsInfos.get(entityID);
+			}
+			else{
+				info = discoverInfo(entityID);
+				nonCapsInfos.put(entityID, info);
+			}
+		}
+		return info;
     }
 
     /**
@@ -560,5 +761,179 @@ public class ServiceDiscoveryManager {
         if (result.getType() == IQ.Type.ERROR) {
             throw new XMPPException(result.getError());
         }
+    }
+    
+	public void addUserCapsNode(String user, String node) {
+		userCaps.put(user, node);
+	}
+	
+	public void removeUserCapsNode(String user) {
+        userCaps.remove(user);
+    }
+	
+	public String getNodeVersionByUser(String user) {
+        return userCaps.get(user);
+    }
+	
+	public String getCapsVersion() {
+        return currentCapsVersion;
+    }
+	
+	public void setNode(String node) {
+        entityNode = node;
+    }
+	
+	public static DiscoverInfo getDiscoverInfoByNode(String node) {
+        return caps.get(node);
+    }
+	
+	private static void cleanupDicsoverInfo(DiscoverInfo info) {
+        info.setFrom(null);
+        info.setTo(null);
+        info.setPacketID(null);
+    }
+	
+	public static void addDiscoverInfoByNode(String node, DiscoverInfo info) {
+        cleanupDicsoverInfo(info);
+
+        caps.put(node, info);
+    }
+	
+	public void setCurrentCapsVersion(DiscoverInfo discoverInfo, String capsVersion) {
+        currentCapsVersion = capsVersion;
+        addDiscoverInfoByNode(getNode() + "#" + capsVersion, discoverInfo);
+    }
+	
+	void calculateEntityCapsVersion(DiscoverInfo discoverInfo,
+            String identityType,
+            String identityName, List<String> features,
+            DataForm extendedInfo) {
+        String s = "";
+
+        // Add identity
+        // FIXME language
+        s += "client/" + identityType + "//" + identityName + "<";
+
+        // Add features
+        synchronized (features) {
+            SortedSet<String> fs = new TreeSet<String>();
+            for (String f : features) {
+                fs.add(f);
+            }
+
+            for (String f : fs) {
+                s += f + "<";
+            }
+        }
+
+        if (extendedInfo != null) {
+            synchronized (extendedInfo) {
+                SortedSet<FormField> fs = new TreeSet<FormField>(
+                        new Comparator<FormField>() {
+                            public int compare(FormField f1, FormField f2) {
+                                return f1.getVariable().compareTo(f2.getVariable());
+                            }
+                        });
+
+                FormField ft = null;
+
+                for (Iterator<FormField> i = extendedInfo.getFields(); i.hasNext();) {
+                    FormField f = i.next();
+                    if (!f.getVariable().equals("FORM_TYPE")) {
+                        fs.add(f);
+                    }
+                    else {
+                        ft = f;
+                    }
+                }
+
+                // Add FORM_TYPE values
+                if (ft != null) {
+                    s += formFieldValuesToCaps(ft.getValues());
+                }
+
+                // Add the other values
+                for (FormField f : fs) {
+                    s += f.getVariable() + "<";
+                    s += formFieldValuesToCaps(f.getValues());
+                }
+            }
+        }
+        setCurrentCapsVersion(discoverInfo, capsToHash(s));
+    }
+	
+	private static String formFieldValuesToCaps(Iterator<String> i) {
+        String s = "";
+        SortedSet<String> fvs = new TreeSet<String>();
+        for (; i.hasNext();) {
+            fvs.add(i.next());
+        }
+        for (String fv : fvs) {
+            s += fv + "<";
+        }
+        return s;
+    }
+	
+	public String getNode(){
+		return entityNode;
+	}
+	
+	private static String capsToHash(String capsString) {
+        try {
+            MessageDigest md = MessageDigest.getInstance(HASH_METHOD_CAPS);
+            byte[] digest = md.digest(capsString.getBytes());
+            return Base64.encodeBytes(digest);
+        }
+        catch (NoSuchAlgorithmException nsae) {
+            return null;
+        }
+    }
+	
+	public void addDiscoverInfoTo(DiscoverInfo response) {
+        // Set this client identity
+        DiscoverInfo.Identity identity = new DiscoverInfo.Identity("client",
+                getIdentityName());
+        identity.setType(getIdentityType());
+        response.addIdentity(identity);
+        // Add the registered features to the response
+        // Add Entity Capabilities (XEP-0115) feature node.
+        response.addFeature("http://jabber.org/protocol/caps");
+        for (Iterator<String> it = getFeatures(); it.hasNext();) {
+            response.addFeature(it.next());
+        }
+        if (extendedInfo != null) {
+            response.addExtension(extendedInfo);
+        }
+    }
+	
+	private void ownVerChanged(){
+		//notify of version changes
+		ArrayList<String> features = new ArrayList<String>();
+		Iterator<String> i = getFeatures();
+		while(i.hasNext()){
+			features.add(i.next());
+		}
+		calculateEntityCapsVersion(getOwnDiscoverInfo(),getIdentityType(),
+				getIdentityName(),features,extendedInfo);
+		Identity id = new Identity("client",getIdentityName());
+		id.setType(getIdentityType());
+		CapsInfoProvider infos = new CapsInfoProvider(getNode()+"#"+currentCapsVersion,
+				features,id);
+		if(presenceSend){
+			Presence presence = new Presence(Presence.Type.available);
+			connection.sendPacket(presence);
+		}
+		setNodeInformationProvider(infos.getNode(), infos);
+	}
+	
+	public DiscoverInfo getOwnDiscoverInfo() {
+        DiscoverInfo di = new DiscoverInfo();
+        di.setType(IQ.Type.RESULT);
+        di.setNode(getNode() + "#" + currentCapsVersion);
+
+        // Add discover info
+        addDiscoverInfoTo(di);
+
+        return di;
     }
 }
