@@ -681,6 +681,10 @@ public abstract class Connection {
     public void removePacketInterceptor(PacketInterceptor packetInterceptor) {
         interceptors.remove(packetInterceptor);
     }
+    
+    public boolean isSendPresence() {
+        return config.isSendPresence();
+    }
 
     /**
      * Get a map of all packet interceptors for sending packets of this connection.
@@ -774,6 +778,7 @@ public abstract class Connection {
                 writer = debugger.newConnectionWriter(writer);
             }
         }
+        
     }
 
 

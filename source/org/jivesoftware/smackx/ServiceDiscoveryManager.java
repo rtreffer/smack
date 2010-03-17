@@ -62,10 +62,10 @@ public class ServiceDiscoveryManager {
 
     private EntityCapsManager capsManager;
 
-    private static Map<AbstractConnection, ServiceDiscoveryManager> instances =
-            new ConcurrentHashMap<AbstractConnection, ServiceDiscoveryManager>();
+    private static Map<Connection, ServiceDiscoveryManager> instances =
+            new ConcurrentHashMap<Connection, ServiceDiscoveryManager>();
 
-    private AbstractConnection connection;
+    private Connection connection;
     private final List<String> features = new ArrayList<String>();
     private DataForm extendedInfo = null;
     private Map<String, NodeInformationProvider> nodeInformationProviders =
@@ -75,7 +75,7 @@ public class ServiceDiscoveryManager {
     static {
         // Add service discovery for normal XMPP c2s connections
         XMPPConnection.addConnectionCreationListener(new ConnectionCreationListener() {
-            public void connectionCreated(XMPPConnection connection) {
+            public void connectionCreated(Connection connection) {
                 new ServiceDiscoveryManager(connection);
             }
         });
@@ -88,7 +88,7 @@ public class ServiceDiscoveryManager {
      * 
      * @param connection the connection to which a ServiceDiscoveryManager is going to be created.
      */
-    public ServiceDiscoveryManager(AbstractConnection connection) {
+    public ServiceDiscoveryManager(Connection connection) {
         this.connection = connection;
 
         // For every XMPPConnection, add one EntityCapsManager.
@@ -108,7 +108,7 @@ public class ServiceDiscoveryManager {
      * @param connection the connection used to look for the proper ServiceDiscoveryManager.
      * @return the ServiceDiscoveryManager associated with a given connection.
      */
-    public static ServiceDiscoveryManager getInstanceFor(AbstractConnection connection) {
+    public static ServiceDiscoveryManager getInstanceFor(Connection connection) {
         return instances.get(connection);
     }
 
@@ -244,7 +244,7 @@ public class ServiceDiscoveryManager {
                 }
             }
         };
-        connection.addPacketWriterInterceptor(packetInterceptor, capsPacketFilter);
+        connection.addPacketInterceptor(packetInterceptor, capsPacketFilter);
 
         // Listen for disco#items requests and answer with an empty result        
         PacketFilter packetFilter = new PacketTypeFilter(DiscoverItems.class);
