@@ -44,7 +44,7 @@ public interface RosterStorage {
 	public int getGroupCount();
 	/**
 	 * This methos returns the version number as specified by the "ver" attribute
-	 * of the local store
+	 * of the local store. Should return an emtpy string if store is empty.
 	 * @return local roster version
 	 */
 	public String getRosterVersion();
