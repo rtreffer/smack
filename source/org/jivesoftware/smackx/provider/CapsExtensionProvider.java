@@ -26,7 +26,8 @@ import org.xmlpull.v1.XmlPullParser;
 public class CapsExtensionProvider implements PacketExtensionProvider {
     public PacketExtension parseExtension(XmlPullParser parser)
         throws Exception {
-        boolean done = false;
+    	//Original implementation by jonas
+        /*boolean done = false;
         int startDepth = parser.getDepth();
 
         String hash = parser.getAttributeValue(null, "hash");
@@ -49,6 +50,28 @@ public class CapsExtensionProvider implements PacketExtensionProvider {
             //throw new XMPPException("Malformed caps element.");
             // Malformed, ignore it
             return null;
-        }
+        }*/
+    	
+    	boolean done=false;
+    	String hash=null;
+    	String version=null;
+    	String node=null;
+    	while(!done){
+	    	if(parser.getEventType()==XmlPullParser.START_TAG &&
+		    	parser.getName().equalsIgnoreCase("c")){
+		    	hash = parser.getAttributeValue(null, "hash");
+		    	version = parser.getAttributeValue(null, "ver");
+		    	node = parser.getAttributeValue(null, "node");
+	    	}
+	
+	    	if(parser.getEventType()==XmlPullParser.END_TAG &&
+	    	parser.getName().equalsIgnoreCase("c")){
+	    		
+	    	}
+	    	else{
+	    		parser.next();
+	    	}
+    	}
+    	return new CapsExtension(node,version,hash);
     }
 }
