@@ -1,7 +1,7 @@
 /**
  * $RCSfile$
- * $Revision$
- * $Date$
+ * $Revision: 7071 $
+ * $Date: 2007-02-12 08:59:05 +0800 (Mon, 12 Feb 2007) $
  *
  * Copyright 2003-2007 Jive Software.
  *
@@ -21,6 +21,7 @@
 package org.jivesoftware.smackx.packet;
 
 import org.jivesoftware.smack.packet.IQ;
+import org.jivesoftware.smack.packet.PacketExtension;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -62,7 +63,7 @@ public class DiscoverInfo extends IQ {
      *
      * @return an Iterator on the discovered features of an XMPP entity
      */
-    Iterator<Feature> getFeatures() {
+    public Iterator<Feature> getFeatures() {
         synchronized (features) {
             return Collections.unmodifiableList(features).iterator();
         }
@@ -153,6 +154,34 @@ public class DiscoverInfo extends IQ {
         buf.append(getExtensionsXML());
         buf.append("</query>");
         return buf.toString();
+    }
+
+    public DiscoverInfo clone() {
+        DiscoverInfo d = new DiscoverInfo();
+
+        // Set node
+        d.setNode(getNode());
+
+        // Copy features
+        synchronized (features) {
+            for (Feature f : features) {
+                d.addFeature(f);
+            }
+        }
+
+        // Copy identities
+        synchronized (identities) {
+            for (Identity i : identities) {
+                d.addIdentity(i);
+            }
+        }
+        
+        // Copy extensions
+        for (PacketExtension pe : getExtensions()) {
+            d.addExtension(pe);
+        }
+
+        return d;
     }
 
     /**
