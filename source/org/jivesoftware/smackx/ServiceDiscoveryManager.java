@@ -56,6 +56,8 @@ public class ServiceDiscoveryManager {
     private static String identityName = "Smack";
     private static String identityType = "pc";
     private static String entityNode = "http://www.igniterealtime.org/projects/smack/";
+    
+    private static boolean cacheNonCaps=true;
 
     private String currentCapsVersion = null;
     private boolean sendPresence = false;
@@ -159,6 +161,24 @@ public class ServiceDiscoveryManager {
      */
     public static void setIdentityType(String type) {
         identityType = type;
+    }
+    
+    /**
+     * Enables caching of non caps entities to reduce traffic. If enabled discover infos of 
+     * entities without xep-0115 are store in a String,DiscoverInfo map and
+     * discoverInfo(String) queries this map before sending a real discover info to the
+     * remote entity. Enabled by default.
+     */
+    public static void setNonCapsCaching(boolean set){
+    	cacheNonCaps = true;
+    }
+    
+    /**
+     * Check if caching of non caps entities is enabled
+     */
+    
+    public static boolean isNonCapsCachingEnabled(){
+    	return cacheNonCaps;
     }
 
     /**
@@ -525,7 +545,7 @@ public class ServiceDiscoveryManager {
             }
 
             //Check if we cached DiscoverInfo for nonCaps entity
-            if(node==null && nonCapsCache.containsKey(entityID)){
+            if(cacheNonCaps && node==null && nonCapsCache.containsKey(entityID)){
             	return nonCapsCache.get(entityID);
             }
             // Discover by requesting from the remote client
@@ -536,7 +556,7 @@ public class ServiceDiscoveryManager {
                 EntityCapsManager.addDiscoverInfoByNode(node, info);
             }
             // If this is a non caps entity store the discover in nonCapsCache map
-            else if(node == null){
+            else if(cacheNonCaps && node == null){
             	nonCapsCache.put(entityID, info);
             }
             return info;
