@@ -59,6 +59,9 @@ public class ServiceDiscoveryManager {
 
     private String currentCapsVersion = null;
     private boolean sendPresence = false;
+    
+    private Map<String,DiscoverInfo> nonCapsCache =
+    	new ConcurrentHashMap<String,DiscoverInfo>();
 
     private EntityCapsManager capsManager;
 
@@ -521,14 +524,21 @@ public class ServiceDiscoveryManager {
                 node = capsManager.getNodeVersionByUser(entityID);
             }
 
+            //Check if we cached DiscoverInfo for nonCaps entity
+            if(node==null && nonCapsCache.containsKey(entityID)){
+            	return nonCapsCache.get(entityID);
+            }
             // Discover by requesting from the remote client
             info = discoverInfo(entityID, node);
 
             // If the node version is known, store the new entry.
             if (node != null && capsManager != null) {
-                capsManager.addDiscoverInfoByNode(node, info);
+                EntityCapsManager.addDiscoverInfoByNode(node, info);
             }
-
+            // If this is a non caps entity store the discover in nonCapsCache map
+            else if(node == null){
+            	nonCapsCache.put(entityID, info);
+            }
             return info;
         }
     }
