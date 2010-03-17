@@ -65,8 +65,8 @@ public class CapsExtensionProvider implements PacketExtensionProvider {
 	    	}
 	
 	    	if(parser.getEventType()==XmlPullParser.END_TAG &&
-	    	parser.getName().equalsIgnoreCase("c")){
-	    		
+	    		parser.getName().equalsIgnoreCase("c")){
+	    		done=true;
 	    	}
 	    	else{
 	    		parser.next();
