@@ -144,6 +144,10 @@ public class Roster {
                 // Ignore
             }
         });
+        
+        if(persistentStorage!=null){
+        	//Init all entries
+        }
     }
 
     /**
