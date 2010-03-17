@@ -67,7 +67,7 @@ public interface RosterStorage {
 	public void removeEntry(String bareJid);
 	/**
 	 * Update an entry which has been modified locally
-	 * @param entry
+	 * @param entry the entry to be updated
 	 */
 	public void updateLocalEntry(RosterEntry entry);
 }
