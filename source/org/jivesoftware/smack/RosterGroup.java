@@ -80,6 +80,9 @@ public class RosterGroup {
                 item.removeGroupName(this.name);
                 item.addGroupName(name);
                 packet.addRosterItem(item);
+                if(Roster.getCurrentPersistentStorage()!=null){
+                	Roster.getCurrentPersistentStorage().updateLocalEntry(entry);
+                }
                 connection.sendPacket(packet);
             }
         }

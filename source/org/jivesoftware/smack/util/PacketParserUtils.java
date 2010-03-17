@@ -352,6 +352,11 @@ public class PacketParserUtils {
         boolean done = false;
         RosterPacket.Item item = null;
         while (!done) {
+        	if(parser.getEventType()== XmlPullParser.START_TAG && 
+        			parser.getName().equals("query")){
+        		String version = parser.getAttributeValue(null, "ver");
+        		roster.setVersion(version);
+        	}
             int eventType = parser.next();
             if (eventType == XmlPullParser.START_TAG) {
                 if (parser.getName().equals("item")) {

@@ -54,6 +54,7 @@ public class Roster {
      * all subscription requests are automatically accepted.
      */
     private static SubscriptionMode defaultSubscriptionMode = SubscriptionMode.accept_all;
+    private static RosterStorage persistentStorage;
 
     private Connection connection;
     private final Map<String, RosterGroup> groups;
@@ -78,6 +79,14 @@ public class Roster {
      */
     public static SubscriptionMode getDefaultSubscriptionMode() {
         return defaultSubscriptionMode;
+    }
+    
+    public static void setPersistentSorage(RosterStorage storage){
+    	persistentStorage = storage;
+    }
+    
+    public static RosterStorage getCurrentPersistentStorage(){
+    	return persistentStorage;
     }
 
     /**
@@ -803,6 +812,9 @@ public class Roster {
                     presenceMap.remove(key);
                     // Keep note that an entry has been removed
                     deletedEntries.add(item.getUser());
+                    if(persistentStorage!=null){
+                    	persistentStorage.removeEntry(item.getUser());
+                    }
                 }
                 else {
                     // Make sure the entry is in the entry list.
@@ -810,6 +822,9 @@ public class Roster {
                         entries.put(item.getUser(), entry);
                         // Keep note that an entry has been added
                         addedEntries.add(item.getUser());
+                        if(persistentStorage!=null && rosterPacket.getVersion()!=null){
+                        	persistentStorage.addEntry(entry, rosterPacket.getVersion());
+                        }
                     }
                     else {
                         // If the entry was in then list then update its state with the new values

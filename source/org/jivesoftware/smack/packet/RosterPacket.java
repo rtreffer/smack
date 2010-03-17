@@ -33,6 +33,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class RosterPacket extends IQ {
 
     private final List<Item> rosterItems = new ArrayList<Item>();
+    /*
+     * The ver attribute following XEP-0237
+     */
+    private String version;
 
     /**
      * Adds a roster item to the packet.
@@ -43,6 +47,14 @@ public class RosterPacket extends IQ {
         synchronized (rosterItems) {
             rosterItems.add(item);
         }
+    }
+    
+    public String getVersion(){
+    	return version;
+    }
+    
+    public void setVersion(String version){
+    	this.version = version;
     }
 
     /**
@@ -69,7 +81,11 @@ public class RosterPacket extends IQ {
 
     public String getChildElementXML() {
         StringBuilder buf = new StringBuilder();
-        buf.append("<query xmlns=\"jabber:iq:roster\">");
+        buf.append("<query xmlns=\"jabber:iq:roster\"");
+        if(version!=null){
+        	buf.append(" ver='"+version+"'");
+        }
+        buf.append(">");
         synchronized (rosterItems) {
             for (Item entry : rosterItems) {
                 buf.append(entry.toXML());

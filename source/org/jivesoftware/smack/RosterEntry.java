@@ -89,6 +89,9 @@ public class RosterEntry {
         RosterPacket packet = new RosterPacket();
         packet.setType(IQ.Type.SET);
         packet.addRosterItem(toRosterItem(this));
+        if(Roster.getCurrentPersistentStorage()!=null){
+        	Roster.getCurrentPersistentStorage().updateLocalEntry(this);
+        }
         connection.sendPacket(packet);
     }
 
