@@ -205,7 +205,7 @@ public class EntityCapsManager {
         }
     }
 
-    public void spam() {
+    /*public void spam() {
         System.err.println("User nodes:");
         for (Map.Entry<String,String> e : userCaps.entrySet()) {
             System.err.println(" * " + e.getKey() + " -> " + e.getValue());
@@ -215,7 +215,7 @@ public class EntityCapsManager {
         for (Map.Entry<String,DiscoverInfo> e : caps.entrySet()) {
             System.err.println(" * " + e.getKey() + " -> " + e.getValue());
         }
-    }
+    }*/
 
     ///////////
     //  Calculate Entity Caps Version String
@@ -327,7 +327,7 @@ public class EntityCapsManager {
             addUserCapsNode(user, nodeVer);
             
             // DEBUG
-            spam();
+            //spam();
         }
     }
 }
