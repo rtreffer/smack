@@ -146,7 +146,17 @@ public class Roster {
         });
         
         if(persistentStorage!=null){
-        	//Init all entries
+        	List<RosterEntry> storeEntries = persistentStorage.getAllRosterEntries();
+        	for(RosterEntry e : storeEntries){
+        		entries.put(e.getUser(),e);
+        		if(e.getGroups().isEmpty()){
+        			unfiledEntries.add(e);
+        		}
+        	}
+        	List<RosterGroup> storeGroups = persistentStorage.getAllRosterGroups();
+        	for(RosterGroup g : storeGroups){
+        		groups.put(g.getName(), g);
+        	}
         }
     }
 
