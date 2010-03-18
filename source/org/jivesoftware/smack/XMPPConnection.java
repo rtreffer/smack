@@ -404,14 +404,20 @@ public class XMPPConnection extends Connection {
      */
     protected void shutdown(Presence unavailablePresence) {
         // Set presence to offline.
-        packetWriter.sendPacket(unavailablePresence);
+    	if(packetWriter!=null){
+    		packetWriter.sendPacket(unavailablePresence);
+    	}
 
         this.setWasAuthenticated(authenticated);
         authenticated = false;
         connected = false;
-
-        packetReader.shutdown();
-        packetWriter.shutdown();
+        
+        if(packetReader!=null){
+        	packetReader.shutdown();
+        }
+        if(packetWriter!=null){
+        	packetWriter.shutdown();
+        }
         // Wait 150 ms for processes to clean-up, then shutdown.
         try {
             Thread.sleep(150);
