@@ -48,7 +48,7 @@ public class RosterGroup {
      * @param name the name of the group.
      * @param connection the connection the group belongs to.
      */
-    RosterGroup(String name, Connection connection) {
+    public RosterGroup(String name, Connection connection) {
         this.name = name;
         this.connection = connection;
         entries = new ArrayList<RosterEntry>();
