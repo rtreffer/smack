@@ -237,7 +237,7 @@ public class RosterGroup {
         }
     }
 
-    void addEntryLocal(RosterEntry entry) {
+    public void addEntryLocal(RosterEntry entry) {
         // Only add the entry if it isn't already in the list.
         synchronized (entries) {
             entries.remove(entry);
