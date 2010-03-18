@@ -392,7 +392,7 @@ public class Roster {
         	return entries.get(user.toLowerCase());
         }
         else if(persistentStorage!=null){
-        	RosterEntry entry = persistentStorage.getEntry(user.toLowerCase());
+        	RosterEntry entry = persistentStorage.getRosterEntry(user.toLowerCase());
         	entries.put(user.toLowerCase(), entry);
         }
         return null;
