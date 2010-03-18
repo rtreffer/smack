@@ -829,6 +829,9 @@ public class Roster {
             Collection<String> deletedEntries = new ArrayList<String>();
 
             RosterPacket rosterPacket = (RosterPacket) packet;
+            if(rosterPacket.getVersion()==null){
+            	persistentStorage=null;
+            }
             for (RosterPacket.Item item : rosterPacket.getRosterItems()) {
                 RosterEntry entry = new RosterEntry(item.getUser(), item.getName(),
                         item.getItemType(), item.getItemStatus(), connection);
