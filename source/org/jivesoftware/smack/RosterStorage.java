@@ -59,7 +59,7 @@ public interface RosterStorage {
 	 * Create a new RosterGroup in this store
 	 * @param group the RosterGroup to store
 	 */
-	public void addGroup(RosterGroup group);
+	//public void addGroup(RosterGroup group);
 	/**
 	 * Removes an entry from the persistent storage
 	 * @param bareJid The bare JID of the entry to be removed
