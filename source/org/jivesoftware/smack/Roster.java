@@ -319,6 +319,9 @@ public class Roster {
         else if (response.getType() == IQ.Type.ERROR) {
             throw new XMPPException(response.getError());
         }
+        if(persistentStorage!=null){
+        	persistentStorage.removeEntry(entry.getUser());
+        }
     }
 
     /**
@@ -327,11 +330,7 @@ public class Roster {
      * @return the number of entries in the roster.
      */
     public int getEntryCount() {
-    	if(persistentStorage==null){
-    		return getEntries().size();
-    	}else{
-    		return persistentStorage.getEntryCount();
-    	}
+		return getEntries().size();
     }
 
     /**
@@ -341,19 +340,15 @@ public class Roster {
      * @return all entries in the roster.
      */
     public Collection<RosterEntry> getEntries() {
-    	if(persistentStorage==null){
-	        Set<RosterEntry> allEntries = new HashSet<RosterEntry>();
-	        // Loop through all roster groups and add their entries to the answer
-	        for (RosterGroup rosterGroup : getGroups()) {
-	            allEntries.addAll(rosterGroup.getEntries());
-	        }
-	        // Add the roster unfiled entries to the answer
-	        allEntries.addAll(unfiledEntries);
-	
-	        return Collections.unmodifiableCollection(allEntries);
-    	}else{
-    		return Collections.unmodifiableCollection(persistentStorage.getAllRosterEntries());
-    	}
+        Set<RosterEntry> allEntries = new HashSet<RosterEntry>();
+        // Loop through all roster groups and add their entries to the answer
+        for (RosterGroup rosterGroup : getGroups()) {
+            allEntries.addAll(rosterGroup.getEntries());
+        }
+        // Add the roster unfiled entries to the answer
+        allEntries.addAll(unfiledEntries);
+
+        return Collections.unmodifiableCollection(allEntries);
     }
 
     /**
@@ -437,11 +432,7 @@ public class Roster {
      * @return the number of groups in the roster.
      */
     public int getGroupCount() {
-    	if(persistentStorage==null){
-    		return groups.size();
-    	}else{
-    		return persistentStorage.getGroupCount();
-    	}
+		return groups.size();
     }
 
     /**
@@ -450,11 +441,7 @@ public class Roster {
      * @return an iterator for all roster groups.
      */
     public Collection<RosterGroup> getGroups() {
-    	if(persistentStorage==null){
-    		return Collections.unmodifiableCollection(groups.values());
-    	}else{
-    		return Collections.unmodifiableCollection(persistentStorage.getAllRosterGroups());
-    	}
+		return Collections.unmodifiableCollection(groups.values());
     }
 
     /**
@@ -883,6 +870,9 @@ public class Roster {
                         
                         // Keep note that an entry has been updated
                         updatedEntries.add(item.getUser());
+                        if(persistentStorage!=null && rosterPacket.getVersion()!=null){
+                        	persistentStorage.addEntry(entry, rosterPacket.getVersion());
+                        }
                     }
                     // If the roster entry belongs to any groups, remove it from the
                     // list of unfiled entries.
