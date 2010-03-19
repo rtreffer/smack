@@ -59,6 +59,7 @@ public class ConnectionConfiguration implements Cloneable {
     private boolean selfSignedCertificateEnabled = false;
     private boolean expiredCertificatesCheckEnabled = false;
     private boolean notMatchingDomainCheckEnabled = false;
+    private boolean isRosterVersioningAvailable = false;
 
     private boolean compressionEnabled = false;
 
@@ -705,6 +706,14 @@ public class ConnectionConfiguration implements Cloneable {
      */
     String getResource() {
         return resource;
+    }
+    
+    boolean isRosterVersioningAvailable(){
+    	return isRosterVersioningAvailable;
+    }
+    
+    void setRosterVersioningAvailable(boolean enabled){
+    	isRosterVersioningAvailable = enabled;
     }
 
     /**

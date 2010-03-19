@@ -390,6 +390,9 @@ class PacketReader {
                     // The server requires the client to bind a resource to the stream
                     connection.getSASLAuthentication().bindingRequired();
                 }
+                else if(parser.getName().equals("ver")){
+                	connection.getConfiguration().setRosterVersioningAvailable(true);
+                }
                 else if (parser.getName().equals("session")) {
                     // The server supports sessions
                     connection.getSASLAuthentication().sessionsSupported();

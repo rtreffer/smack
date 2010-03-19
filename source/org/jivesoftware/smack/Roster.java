@@ -144,6 +144,10 @@ public class Roster {
                 // Ignore
             }
         });
+        //Disable roster versioning if server doesn't offer support for it
+        if(!connection.getConfiguration().isRosterVersioningAvailable()){
+        	persistentStorage=null;
+        }
         if(persistentStorage!=null){
         	//Here we insert every item we get from the storage into our roster object
         	for(RosterPacket.Item i : persistentStorage.getEntries()){
