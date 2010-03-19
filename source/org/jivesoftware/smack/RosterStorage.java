@@ -16,13 +16,13 @@ public interface RosterStorage {
 	 * This method returns a List object with all RosterEntries contained in this store.
 	 * @return List object with all entries in local roster storage
 	 */
-	public List<RosterPacket.Item> getAllRosterEntries();
+	public List<RosterPacket.Item> getEntries();
 	/**
 	 * This method returns the RosterEntry which belongs to a specific user.
 	 * @param bareJid The bare JID of the RosterEntry
 	 * @return The RosterEntry which belongs to that user
 	 */
-	public RosterPacket.Item getRosterEntry(String bareJid);
+	public RosterPacket.Item getEntry(String bareJid);
 	/**
 	 * Returns the number of entries in this roster store
 	 * @return the number of entries
