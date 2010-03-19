@@ -146,7 +146,7 @@ public class Roster {
         });
         if(persistentStorage!=null){
         	//Here we insert every item we get from the storage into our roster object
-        	for(RosterPacket.Item i : persistentStorage.getAllRosterEntries()){
+        	for(RosterPacket.Item i : persistentStorage.getEntries()){
         		insertRosterItem(i,null,null,null);
         	}
         }
