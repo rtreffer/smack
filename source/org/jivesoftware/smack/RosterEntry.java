@@ -48,7 +48,7 @@ public class RosterEntry {
      * @param status the subscription status (related to subscriptions pending to be approbed).
      * @param connection a connection to the XMPP server.
      */
-    public RosterEntry(String user, String name, RosterPacket.ItemType type,
+    RosterEntry(String user, String name, RosterPacket.ItemType type,
                 RosterPacket.ItemStatus status, Connection connection) {
         this.user = user;
         this.name = name;
@@ -89,9 +89,6 @@ public class RosterEntry {
         RosterPacket packet = new RosterPacket();
         packet.setType(IQ.Type.SET);
         packet.addRosterItem(toRosterItem(this));
-        if(Roster.getCurrentPersistentStorage()!=null){
-        	Roster.getCurrentPersistentStorage().updateLocalEntry(this);
-        }
         connection.sendPacket(packet);
     }
 

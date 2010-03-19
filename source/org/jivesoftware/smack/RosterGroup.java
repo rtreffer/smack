@@ -48,7 +48,7 @@ public class RosterGroup {
      * @param name the name of the group.
      * @param connection the connection the group belongs to.
      */
-    public RosterGroup(String name, Connection connection) {
+    RosterGroup(String name, Connection connection) {
         this.name = name;
         this.connection = connection;
         entries = new ArrayList<RosterEntry>();
@@ -80,9 +80,6 @@ public class RosterGroup {
                 item.removeGroupName(this.name);
                 item.addGroupName(name);
                 packet.addRosterItem(item);
-                if(Roster.getCurrentPersistentStorage()!=null){
-                	Roster.getCurrentPersistentStorage().updateLocalEntry(entry);
-                }
                 connection.sendPacket(packet);
             }
         }
