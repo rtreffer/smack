@@ -60,6 +60,7 @@ public class ConnectionConfiguration implements Cloneable {
     private boolean expiredCertificatesCheckEnabled = false;
     private boolean notMatchingDomainCheckEnabled = false;
     private boolean isRosterVersioningAvailable = false;
+    private String capsNode = null;
 
     private boolean compressionEnabled = false;
 
@@ -714,6 +715,14 @@ public class ConnectionConfiguration implements Cloneable {
     
     void setRosterVersioningAvailable(boolean enabled){
     	isRosterVersioningAvailable = enabled;
+    }
+    
+    void setCapsNode(String node){
+    	capsNode = node;
+    }
+    
+    String getCapsNode(){
+    	return capsNode;
     }
 
     /**

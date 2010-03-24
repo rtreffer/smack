@@ -26,6 +26,7 @@ import org.jivesoftware.smack.sasl.SASLMechanism.Challenge;
 import org.jivesoftware.smack.sasl.SASLMechanism.Failure;
 import org.jivesoftware.smack.sasl.SASLMechanism.Success;
 import org.jivesoftware.smack.util.PacketParserUtils;
+import org.jivesoftware.smackx.ServiceDiscoveryManager;
 import org.xmlpull.mxp1.MXParser;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -392,6 +393,12 @@ class PacketReader {
                 }
                 else if(parser.getName().equals("ver")){
                 	connection.getConfiguration().setRosterVersioningAvailable(true);
+                }
+                else if(parser.getName().equals("c")){
+                	String node = parser.getAttributeValue(null, "node");
+                	String ver = parser.getAttributeValue(null, "ver");
+                	String capsNode = node+"#"+ver;
+                	connection.getConfiguration().setCapsNode(capsNode);
                 }
                 else if (parser.getName().equals("session")) {
                     // The server supports sessions

@@ -231,6 +231,10 @@ public abstract class Connection {
     public String getHost() {
         return config.getHost();
     }
+    
+    public String getCapsNode(){
+    	return config.getCapsNode();
+    }
 
     /**
      * Returns the port number of the XMPP server for this connection. The default port
