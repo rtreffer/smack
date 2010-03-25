@@ -1,5 +1,6 @@
-jar		| version
+jar                   | version
 ----------------------------------------
-xmlunit		| 1.2
-jstun		| 0.7.2
-xpp		| 1.1.4c
+xmlunit               | 1.2
+java-xmlbuilder-0.3   | 0.3
+jstun                 | 0.7.2
+xpp                   | 1.1.4c
