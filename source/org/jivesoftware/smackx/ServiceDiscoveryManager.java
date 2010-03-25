@@ -735,7 +735,9 @@ public class ServiceDiscoveryManager {
 
     public void setEntityCapsManager(EntityCapsManager manager) {
         capsManager = manager;
-        capsManager.addUserCapsNode(connection.getHost(), connection.getCapsNode());
+        if(connection.getCapsNode()!=null){
+        	capsManager.addUserCapsNode(connection.getHost(), connection.getCapsNode());
+        }
         capsManager.addPacketListener(connection);
     }
 
