@@ -83,7 +83,6 @@ public class PacketParserUtils {
         // are only read once. This is because it's possible for the names to appear
         // in arbitrary sub-elements.
         boolean done = false;
-        String subject = null;
         String thread = null;
         Map<String, Object> properties = null;
         while (!done) {
