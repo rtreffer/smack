@@ -99,7 +99,9 @@ public class EntityCapsManager {
      * @param node the entity caps node#ver
      */
     public void addUserCapsNode(String user, String node) {
-        userCaps.put(user, node);
+    	if(user!=null && node!=null){
+    		userCaps.put(user, node);
+    	}
     }
 
     /**
