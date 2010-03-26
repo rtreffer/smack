@@ -426,9 +426,13 @@ public class Message extends Packet {
             buf.append(" type=\"").append(type).append("\"");
         }
         buf.append(">");
-        /*if (subject != null) {
-            buf.append("<subject>").append(StringUtils.escapeForXML(subject)).append("</subject>");
-        }*/
+        // Add the subject in the default language
+        Subject defaultSubject = getMessageSubject(null);
+        if(defaultSubject!=null){
+        	buf.append("<subject>").append(StringUtils.escapeForXML(defaultSubject.getSubject()));
+        	buf.append("</subject>");
+        }
+        //Add subjects in other languages
         for ( Subject s : getSubjects()){
         	buf.append("<subject xml:lang=\""+s.getLanguage()+"\">");
         	buf.append(StringUtils.escapeForXML(s.getSubject()));
