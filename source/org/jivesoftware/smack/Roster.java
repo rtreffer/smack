@@ -150,9 +150,7 @@ public class Roster {
         }
         if(persistentStorage!=null){
         	//Here we insert every item we get from the storage into our roster object
-        	for(RosterPacket.Item i : persistentStorage.getEntries()){
-        		insertRosterItem(i,null,null,null);
-        	}
+        	insertRosterItems(persistentStorage.getEntries());
         }
     }
 
@@ -280,6 +278,17 @@ public class Roster {
         Presence presencePacket = new Presence(Presence.Type.subscribe);
         presencePacket.setTo(user);
         connection.sendPacket(presencePacket);
+    }
+    
+    private void insertRosterItems(List<RosterPacket.Item> items){
+    	 Collection<String> addedEntries = new ArrayList<String>();
+         Collection<String> updatedEntries = new ArrayList<String>();
+         Collection<String> deletedEntries = new ArrayList<String>();
+         Iterator<RosterPacket.Item> iter = items.iterator();
+         while(iter.hasNext()){
+        	 insertRosterItem(iter.next(), addedEntries,updatedEntries,deletedEntries);
+         }
+         fireRosterChangedEvent(addedEntries, updatedEntries, deletedEntries);
     }
     
     private void insertRosterItem(RosterPacket.Item item, Collection<String> addedEntries,
@@ -928,7 +937,7 @@ public class Roster {
             
             for (RosterPacket.Item item : rosterPacket.getRosterItems()) {
             	insertRosterItem(item,addedEntries,updatedEntries,deletedEntries);
-            	if(persistentStorage!=null){
+            	if(persistentStorage!=null && version!=null){
             		if(item.getItemType().equals(RosterPacket.ItemType.remove)){
             			persistentStorage.removeEntry(item.getUser());
             		}
