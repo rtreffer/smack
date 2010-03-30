@@ -1051,6 +1051,7 @@ public class Roster {
             if(persistentStorage!=null){
             	System.out.println("Saving items in persistent Storage");
             	for (RosterPacket.Item i : rosterPacket.getRosterItems()){
+            		System.out.println("Saving item "+i.getUser()+" to store");
             		if(i.getItemType().equals(RosterPacket.ItemType.remove)){
             			persistentStorage.removeEntry(i.getUser());
             		}
