@@ -431,9 +431,6 @@ public class Roster {
         else if (response.getType() == IQ.Type.ERROR) {
             throw new XMPPException(response.getError());
         }
-        if(persistentStorage!=null){
-        	persistentStorage.removeEntry(entry.getUser());
-        }
     }
 
     /**
@@ -934,10 +931,11 @@ public class Roster {
             }
             
             List<RosterPacket.Item> rosterItems = new ArrayList<RosterPacket.Item>();
+            rosterItems.addAll(rosterPacket.getRosterItems());
             if(persistentStorage!=null && !rosterInitialized){
             	rosterItems.addAll(persistentStorage.getEntries());
             }
-            rosterItems.addAll(rosterPacket.getRosterItems());
+           
             
             for (RosterPacket.Item item : rosterItems) {
             	/*if(persistentStorage!=null && version!=null){
