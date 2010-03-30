@@ -933,8 +933,14 @@ public class Roster {
             	version = rosterPacket.getVersion();
             }
             
-            for (RosterPacket.Item item : rosterPacket.getRosterItems()) {
-            	if(persistentStorage!=null && version!=null){
+            List<RosterPacket.Item> rosterItems = new ArrayList<RosterPacket.Item>();
+            if(persistentStorage!=null && !rosterInitialized){
+            	rosterItems.addAll(persistentStorage.getEntries());
+            }
+            rosterItems.addAll(rosterPacket.getRosterItems());
+            
+            for (RosterPacket.Item item : rosterItems) {
+            	/*if(persistentStorage!=null && version!=null){
             		if(item.getItemType().equals(RosterPacket.ItemType.remove)){
             			persistentStorage.removeEntry(item.getUser());
             		}
@@ -947,8 +953,8 @@ public class Roster {
             	}
             	if(rosterInitialized){
             		insertRosterItem(item,addedEntries,updatedEntries,deletedEntries);
-            	}
-                /*RosterEntry entry = new RosterEntry(item.getUser(), item.getName(),
+            	}*/
+                RosterEntry entry = new RosterEntry(item.getUser(), item.getName(),
                         item.getItemType(), item.getItemStatus(), connection);
 
                 // If the packet is of the type REMOVE then remove the entry
@@ -1050,13 +1056,23 @@ public class Roster {
                     if (group.getEntryCount() == 0) {
                         groups.remove(group.getName());
                     }
-                }*/
+                }
             }
-            if(persistentStorage!=null && !rosterInitialized){
+            if(persistentStorage!=null){
+            	for (RosterPacket.Item i : rosterPacket.getRosterItems()){
+            		if(i.getItemType().equals(RosterPacket.ItemType.remove)){
+            			persistentStorage.removeEntry(i.getUser());
+            		}
+            		else{
+            			persistentStorage.addEntry(i, version);
+            		}
+            	}
+            }
+            /*if(persistentStorage!=null && !rosterInitialized){
 	            for(RosterPacket.Item i : persistentStorage.getEntries()){
 	            	insertRosterItem(i,addedEntries,updatedEntries,deletedEntries);
 	            }
-            }
+            }*/
             // Mark the roster as initialized.
             synchronized (Roster.this) {
                 rosterInitialized = true;
