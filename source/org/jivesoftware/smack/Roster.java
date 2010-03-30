@@ -922,6 +922,10 @@ public class Roster {
            
             String version=null;
             RosterPacket rosterPacket = (RosterPacket) packet;
+            List<RosterPacket.Item> rosterItems = new ArrayList<RosterPacket.Item>();
+            for(RosterPacket.Item item : rosterPacket.getRosterItems()){
+            	rosterItems.add(item);
+            }
             //Here we check if the server send a versioned roster, if not we do not use
             //the roster storage to store entries and work like in the old times 
             if(rosterPacket.getVersion()==null){
@@ -930,28 +934,13 @@ public class Roster {
             	version = rosterPacket.getVersion();
             }
             
-            List<RosterPacket.Item> rosterItems = new ArrayList<RosterPacket.Item>();
-            rosterItems.addAll(rosterPacket.getRosterItems());
             if(persistentStorage!=null && !rosterInitialized){
-            	rosterItems.addAll(persistentStorage.getEntries());
+            	for(RosterPacket.Item item : persistentStorage.getEntries()){
+            		rosterItems.add(item);
+            	}
             }
-           
             
             for (RosterPacket.Item item : rosterItems) {
-            	/*if(persistentStorage!=null && version!=null){
-            		if(item.getItemType().equals(RosterPacket.ItemType.remove)){
-            			persistentStorage.removeEntry(item.getUser());
-            		}
-            		else{
-            			persistentStorage.addEntry(item, version);
-            		}
-            	}
-            	else{
-            		insertRosterItem(item,addedEntries,updatedEntries,deletedEntries);
-            	}
-            	if(rosterInitialized){
-            		insertRosterItem(item,addedEntries,updatedEntries,deletedEntries);
-            	}*/
                 RosterEntry entry = new RosterEntry(item.getUser(), item.getName(),
                         item.getItemType(), item.getItemStatus(), connection);
 
@@ -1053,6 +1042,7 @@ public class Roster {
                     }
                 }
             }
+            
             if(persistentStorage!=null){
             	for (RosterPacket.Item i : rosterPacket.getRosterItems()){
             		if(i.getItemType().equals(RosterPacket.ItemType.remove)){
@@ -1063,11 +1053,6 @@ public class Roster {
             		}
             	}
             }
-            /*if(persistentStorage!=null && !rosterInitialized){
-	            for(RosterPacket.Item i : persistentStorage.getEntries()){
-	            	insertRosterItem(i,addedEntries,updatedEntries,deletedEntries);
-	            }
-            }*/
             // Mark the roster as initialized.
             synchronized (Roster.this) {
                 rosterInitialized = true;
