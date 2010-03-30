@@ -743,6 +743,7 @@ public class Roster {
      */
     private void fireRosterChangedEvent(Collection<String> addedEntries, Collection<String> updatedEntries,
             Collection<String> deletedEntries) {
+    	System.out.println("Firing roster changed events");
         for (RosterListener listener : rosterListeners) {
             if (!addedEntries.isEmpty()) {
                 listener.entriesAdded(addedEntries);
@@ -1063,6 +1064,7 @@ public class Roster {
             }
             System.out.println("Ok, rosterpacket is processed. AddedEntries: "+addedEntries.size());
             // Fire event for roster listeners.
+            System.out.println("And we have "+rosterListeners.size()+" rosterListener");
             fireRosterChangedEvent(addedEntries, updatedEntries, deletedEntries);
         }
     }
