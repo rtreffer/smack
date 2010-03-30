@@ -799,6 +799,7 @@ public class Roster {
     private class PresencePacketListener implements PacketListener {
 
         public void processPacket(Packet packet) {
+        	System.out.println("Processing RosterPacket!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             Presence presence = (Presence) packet;
             String from = presence.getFrom();
             String key = getPresenceMapKey(from);
@@ -926,6 +927,7 @@ public class Roster {
             for(RosterPacket.Item item : rosterPacket.getRosterItems()){
             	rosterItems.add(item);
             }
+            System.out.println("We received a roster packet with "+rosterPacket.getRosterItemCount()+" items");
             //Here we check if the server send a versioned roster, if not we do not use
             //the roster storage to store entries and work like in the old times 
             if(rosterPacket.getVersion()==null){
@@ -966,6 +968,7 @@ public class Roster {
                     // Make sure the entry is in the entry list.
                     if (!entries.containsKey(item.getUser())) {
                         entries.put(item.getUser(), entry);
+                        System.out.println("Adding a RosterItem to addedEntries");
                         // Keep note that an entry has been added
                         addedEntries.add(item.getUser());
                     }
@@ -1058,7 +1061,7 @@ public class Roster {
                 rosterInitialized = true;
                 Roster.this.notifyAll();
             }
-
+            System.out.println("Ok, rosterpacket is processed. AddedEntries: "+addedEntries.size());
             // Fire event for roster listeners.
             fireRosterChangedEvent(addedEntries, updatedEntries, deletedEntries);
         }
