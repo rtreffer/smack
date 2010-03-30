@@ -1058,9 +1058,11 @@ public class Roster {
             			persistentStorage.addEntry(i, version);
             		}
             	}
+            	System.out.println("Done saving the roster items");
             }
             // Mark the roster as initialized.
             synchronized (Roster.this) {
+            	System.out.println("Marking the roster initialized");
                 rosterInitialized = true;
                 Roster.this.notifyAll();
             }
