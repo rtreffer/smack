@@ -800,7 +800,6 @@ public class Roster {
     private class PresencePacketListener implements PacketListener {
 
         public void processPacket(Packet packet) {
-        	System.out.println("Processing RosterPacket!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             Presence presence = (Presence) packet;
             String from = presence.getFrom();
             String key = getPresenceMapKey(from);
@@ -934,6 +933,7 @@ public class Roster {
             if(rosterPacket.getVersion()==null){
             	persistentStorage=null;
             } else{
+            	System.out.println("Yeah, we are using roster versioning");
             	version = rosterPacket.getVersion();
             }
             
@@ -946,7 +946,7 @@ public class Roster {
             for (RosterPacket.Item item : rosterItems) {
                 RosterEntry entry = new RosterEntry(item.getUser(), item.getName(),
                         item.getItemType(), item.getItemStatus(), connection);
-
+                System.out.println("Processing item from roster packet");
                 // If the packet is of the type REMOVE then remove the entry
                 if (RosterPacket.ItemType.remove.equals(item.getItemType())) {
                     // Remove the entry from the entry list.
@@ -1045,9 +1045,11 @@ public class Roster {
                         groups.remove(group.getName());
                     }
                 }
+                System.out.println("End of main loop in roster");
             }
-            
+            System.out.println("Processed all roster items");
             if(persistentStorage!=null){
+            	System.out.println("Saving items in persistent Storage");
             	for (RosterPacket.Item i : rosterPacket.getRosterItems()){
             		if(i.getItemType().equals(RosterPacket.ItemType.remove)){
             			persistentStorage.removeEntry(i.getUser());
