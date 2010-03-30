@@ -974,9 +974,6 @@ public class Roster {
                     presenceMap.remove(key);
                     // Keep note that an entry has been removed
                     deletedEntries.add(item.getUser());
-                    if(persistentStorage!=null){
-                    	persistentStorage.removeEntry(item.getUser());
-                    }
                 }
                 else {
                     // Make sure the entry is in the entry list.
