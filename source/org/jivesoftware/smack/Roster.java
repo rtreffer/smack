@@ -935,6 +935,11 @@ public class Roster {
 		            	for(RosterPacket.Item item : persistentStorage.getEntries()){
 		            		insertRosterItem(item,addedEntries,updatedEntries,deletedEntries);
 		            	}
+		            	synchronized (Roster.this) {
+		                	System.out.println("Marking the roster initialized");
+		                    rosterInitialized = true;
+		                    Roster.this.notifyAll();
+		                }
 		            	fireRosterChangedEvent(addedEntries,updatedEntries,deletedEntries);
 		            }
 				}
