@@ -68,6 +68,8 @@ public class Roster {
     private PresencePacketListener presencePacketListener;
 
     private SubscriptionMode subscriptionMode = getDefaultSubscriptionMode();
+    
+    private String requestPacketId;
 
     /**
      * Returns the default subscription processing mode to use when a new Roster is created. The
@@ -191,6 +193,9 @@ public class Roster {
     	if(persistentStorage!=null){
     		packet.setVersion(persistentStorage.getRosterVersion());
     	}
+    	requestPacketId = packet.getPacketID();
+    	PacketFilter idFilter = new PacketIDFilter(requestPacketId);
+    	connection.addPacketListener(new RosterResultListener(), idFilter);
         connection.sendPacket(packet);
     }
 
@@ -907,6 +912,35 @@ public class Roster {
                 }
             }
         }
+    }
+    
+    /**
+     * Listen for empty IQ results which indicate that the client has already a current
+     * roster version
+     * @author Till Klocke
+     *
+     */
+    
+    private class RosterResultListener implements PacketListener{
+
+		@Override
+		public void processPacket(Packet packet) {
+			if(packet instanceof IQ){
+				IQ result = (IQ)packet;
+				if(result.getType().equals(IQ.Type.RESULT) && result.getExtensions().isEmpty()){
+					Collection<String> addedEntries = new ArrayList<String>();
+		            Collection<String> updatedEntries = new ArrayList<String>();
+		            Collection<String> deletedEntries = new ArrayList<String>();
+		            if(persistentStorage!=null){
+		            	for(RosterPacket.Item item : persistentStorage.getEntries()){
+		            		insertRosterItem(item,addedEntries,updatedEntries,deletedEntries);
+		            	}
+		            	fireRosterChangedEvent(addedEntries,updatedEntries,deletedEntries);
+		            }
+				}
+			}
+			connection.removePacketListener(this);
+		}
     }
 
     /**
