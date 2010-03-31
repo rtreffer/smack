@@ -966,13 +966,11 @@ public class Roster {
             for(RosterPacket.Item item : rosterPacket.getRosterItems()){
             	rosterItems.add(item);
             }
-            System.out.println("We received a roster packet with "+rosterPacket.getRosterItemCount()+" items");
             //Here we check if the server send a versioned roster, if not we do not use
             //the roster storage to store entries and work like in the old times 
             if(rosterPacket.getVersion()==null){
             	persistentStorage=null;
             } else{
-            	System.out.println("Yeah, we are using roster versioning");
             	version = rosterPacket.getVersion();
             }
             
@@ -983,114 +981,10 @@ public class Roster {
             }
             
             for (RosterPacket.Item item : rosterItems) {
-                RosterEntry entry = new RosterEntry(item.getUser(), item.getName(),
-                        item.getItemType(), item.getItemStatus(), connection);
-                System.out.println("Processing item from roster packet");
-                // If the packet is of the type REMOVE then remove the entry
-                if (RosterPacket.ItemType.remove.equals(item.getItemType())) {
-                    // Remove the entry from the entry list.
-                    if (entries.containsKey(item.getUser())) {
-                        entries.remove(item.getUser());
-                    }
-                    // Remove the entry from the unfiled entry list.
-                    if (unfiledEntries.contains(entry)) {
-                        unfiledEntries.remove(entry);
-                    }
-                    // Removing the user from the roster, so remove any presence information
-                    // about them.
-                    String key = StringUtils.parseName(item.getUser()) + "@" +
-                            StringUtils.parseServer(item.getUser());
-                    presenceMap.remove(key);
-                    // Keep note that an entry has been removed
-                    deletedEntries.add(item.getUser());
-                }
-                else {
-                    // Make sure the entry is in the entry list.
-                    if (!entries.containsKey(item.getUser())) {
-                        entries.put(item.getUser(), entry);
-                        System.out.println("Adding a RosterItem to addedEntries");
-                        // Keep note that an entry has been added
-                        addedEntries.add(item.getUser());
-                    }
-                    else {
-                        // If the entry was in then list then update its state with the new values
-                        entries.put(item.getUser(), entry);
-                        
-                        // Keep note that an entry has been updated
-                        updatedEntries.add(item.getUser());
-                    }
-                    // If the roster entry belongs to any groups, remove it from the
-                    // list of unfiled entries.
-                    if (!item.getGroupNames().isEmpty()) {
-                        unfiledEntries.remove(entry);
-                    }
-                    // Otherwise add it to the list of unfiled entries.
-                    else {
-                        if (!unfiledEntries.contains(entry)) {
-                            unfiledEntries.add(entry);
-                        }
-                    }
-                }
-
-                // Find the list of groups that the user currently belongs to.
-                List<String> currentGroupNames = new ArrayList<String>();
-                for (RosterGroup group: getGroups()) {
-                    if (group.contains(entry)) {
-                        currentGroupNames.add(group.getName());
-                    }
-                }
-
-                // If the packet is not of the type REMOVE then add the entry to the groups
-                if (!RosterPacket.ItemType.remove.equals(item.getItemType())) {
-                    // Create the new list of groups the user belongs to.
-                    List<String> newGroupNames = new ArrayList<String>();
-                    for (String groupName : item.getGroupNames()) {
-                        // Add the group name to the list.
-                        newGroupNames.add(groupName);
-
-                        // Add the entry to the group.
-                        RosterGroup group = getGroup(groupName);
-                        if (group == null) {
-                            group = createGroup(groupName);
-                            groups.put(groupName, group);
-                        }
-                        // Add the entry.
-                        group.addEntryLocal(entry);
-                    }
-
-                    // We have the list of old and new group names. We now need to
-                    // remove the entry from the all the groups it may no longer belong
-                    // to. We do this by subracting the new group set from the old.
-                    for (String newGroupName : newGroupNames) {
-                        currentGroupNames.remove(newGroupName);
-                    }
-                }
-
-                // Loop through any groups that remain and remove the entries.
-                // This is neccessary for the case of remote entry removals.
-                for (String groupName : currentGroupNames) {
-                    RosterGroup group = getGroup(groupName);
-                    group.removeEntryLocal(entry);
-                    if (group.getEntryCount() == 0) {
-                        groups.remove(groupName);
-                    }
-                }
-                // Remove all the groups with no entries. We have to do this because
-                // RosterGroup.removeEntry removes the entry immediately (locally) and the
-                // group could remain empty.
-                // TODO Check the performance/logic for rosters with large number of groups
-                for (RosterGroup group : getGroups()) {
-                    if (group.getEntryCount() == 0) {
-                        groups.remove(group.getName());
-                    }
-                }
-                System.out.println("End of main loop in roster");
+            	insertRosterItem(item,addedEntries,updatedEntries,deletedEntries);
             }
-            System.out.println("Processed all roster items");
             if(persistentStorage!=null){
-            	System.out.println("Saving items in persistent Storage");
             	for (RosterPacket.Item i : rosterPacket.getRosterItems()){
-            		System.out.println("Saving item "+i.getUser()+" to store");
             		if(i.getItemType().equals(RosterPacket.ItemType.remove)){
             			persistentStorage.removeEntry(i.getUser());
             		}
@@ -1098,17 +992,14 @@ public class Roster {
             			persistentStorage.addEntry(i, version);
             		}
             	}
-            	System.out.println("Done saving the roster items");
             }
             // Mark the roster as initialized.
             synchronized (Roster.this) {
-            	System.out.println("Marking the roster initialized");
                 rosterInitialized = true;
                 Roster.this.notifyAll();
             }
-            System.out.println("Ok, rosterpacket is processed. AddedEntries: "+addedEntries.size());
+           
             // Fire event for roster listeners.
-            System.out.println("And we have "+rosterListeners.size()+" rosterListener");
             fireRosterChangedEvent(addedEntries, updatedEntries, deletedEntries);
         }
     }
