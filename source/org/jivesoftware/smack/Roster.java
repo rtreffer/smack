@@ -54,7 +54,7 @@ public class Roster {
      * all subscription requests are automatically accepted.
      */
     private static SubscriptionMode defaultSubscriptionMode = SubscriptionMode.accept_all;
-    private static RosterStorage persistentStorage;
+    private RosterStorage persistentStorage;
 
     private Connection connection;
     private final Map<String, RosterGroup> groups;
@@ -82,14 +82,6 @@ public class Roster {
     public static SubscriptionMode getDefaultSubscriptionMode() {
         return defaultSubscriptionMode;
     }
-    
-    public static void setPersistentSorage(RosterStorage storage){
-    	persistentStorage = storage;
-    }
-    
-    public static RosterStorage getCurrentPersistentStorage(){
-    	return persistentStorage;
-    }
 
     /**
      * Sets the default subscription processing mode to use when a new Roster is created. The
@@ -101,6 +93,11 @@ public class Roster {
      */
     public static void setDefaultSubscriptionMode(SubscriptionMode subscriptionMode) {
         defaultSubscriptionMode = subscriptionMode;
+    }
+    
+    Roster(final Connection connection, RosterStorage persistentStorage){
+    	this(connection);
+    	this.persistentStorage = persistentStorage;
     }
 
     /**

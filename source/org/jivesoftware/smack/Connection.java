@@ -175,6 +175,11 @@ public abstract class Connection {
      * The Writer which is used for the {@see debugger}.
      */
     protected Writer writer;
+    
+    /**
+     * The permanent storage for the roster
+     */
+    protected RosterStorage rosterStorage;
 
 
     /**
@@ -430,7 +435,15 @@ public abstract class Connection {
      * @return the user's roster, or <tt>null</tt> if the user has not logged in yet.
      */
     public abstract Roster getRoster();
-
+    
+    /**
+     * Set the store for the roster of this connection. If you set the roster storage
+     * of a connection you enable support for XEP-0237 (RosterVersioning)
+     * @param store the store used for roster versioning
+     * @throws IllegalStateException if you add a roster store when roster is initializied
+     */
+    public abstract void setRosterStorage(RosterStorage storage) throws IllegalStateException;
+    
     /**
      * Returns the SASLAuthentication manager that is responsible for authenticating with
      * the server.

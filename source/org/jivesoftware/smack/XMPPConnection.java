@@ -259,7 +259,12 @@ public class XMPPConnection extends Connection {
 
         // Create the roster if it is not a reconnection.
         if (this.roster == null) {
-            this.roster = new Roster(this);
+        	if(rosterStorage==null){
+        		this.roster = new Roster(this);
+        	}
+        	else{
+        		this.roster = new Roster(this,rosterStorage);
+        	}
         }
         if (config.isRosterLoadedAtLogin()) {
             this.roster.reload();
@@ -1015,4 +1020,13 @@ public class XMPPConnection extends Connection {
             this.wasAuthenticated = wasAuthenticated;
         }
     }
+
+	@Override
+	public void setRosterStorage(RosterStorage storage)
+			throws IllegalStateException {
+		if(roster!=null){
+			throw new IllegalStateException("Roster is already initialized");
+		}
+		this.rosterStorage = storage;
+	}
 }
