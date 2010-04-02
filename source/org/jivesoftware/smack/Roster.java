@@ -745,7 +745,6 @@ public class Roster {
      */
     private void fireRosterChangedEvent(Collection<String> addedEntries, Collection<String> updatedEntries,
             Collection<String> deletedEntries) {
-    	System.out.println("Firing roster changed events");
         for (RosterListener listener : rosterListeners) {
             if (!addedEntries.isEmpty()) {
                 listener.entriesAdded(addedEntries);
@@ -933,7 +932,6 @@ public class Roster {
 		            		insertRosterItem(item,addedEntries,updatedEntries,deletedEntries);
 		            	}
 		            	synchronized (Roster.this) {
-		                	System.out.println("Marking the roster initialized");
 		                    rosterInitialized = true;
 		                    Roster.this.notifyAll();
 		                }
