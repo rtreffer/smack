@@ -227,9 +227,11 @@ public class AccountManager {
         Registration reg = new Registration();
         reg.setType(IQ.Type.SET);
         reg.setTo(connection.getServiceName());
-        attributes.put("username",username);
-        attributes.put("password",password);
-        reg.setAttributes(attributes);
+        reg.setUsername(username);
+        reg.setPassword(password);
+        for(String s : attributes.keySet()){
+        	reg.addAttribute(s, attributes.get(s));
+        }
         PacketFilter filter = new AndFilter(new PacketIDFilter(reg.getPacketID()),
                 new PacketTypeFilter(IQ.class));
         PacketCollector collector = connection.createPacketCollector(filter);
@@ -257,10 +259,8 @@ public class AccountManager {
         Registration reg = new Registration();
         reg.setType(IQ.Type.SET);
         reg.setTo(connection.getServiceName());
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("username",StringUtils.parseName(connection.getUser()));
-        map.put("password",newPassword);
-        reg.setAttributes(map);
+        reg.setUsername(StringUtils.parseName(connection.getUser()));
+        reg.setPassword(newPassword);
         PacketFilter filter = new AndFilter(new PacketIDFilter(reg.getPacketID()),
                 new PacketTypeFilter(IQ.class));
         PacketCollector collector = connection.createPacketCollector(filter);
@@ -291,10 +291,8 @@ public class AccountManager {
         Registration reg = new Registration();
         reg.setType(IQ.Type.SET);
         reg.setTo(connection.getServiceName());
-        Map<String, String> attributes = new HashMap<String, String>();
-        // To delete an account, we add a single attribute, "remove", that is blank.
-        attributes.put("remove", "");
-        reg.setAttributes(attributes);
+        // To delete an account, we set remove to true
+        reg.setRemove(true);
         PacketFilter filter = new AndFilter(new PacketIDFilter(reg.getPacketID()),
                 new PacketTypeFilter(IQ.class));
         PacketCollector collector = connection.createPacketCollector(filter);
