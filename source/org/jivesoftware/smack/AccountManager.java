@@ -31,7 +31,10 @@ import org.jivesoftware.smack.util.StringUtils;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Allows creation and management of accounts on an XMPP server.
@@ -128,9 +131,10 @@ public class AccountManager {
             if (info == null) {
                 getRegistrationInfo();
             }
-            Map<String, String> attributes = info.getAttributes();
-            if (attributes != null) {
-                return Collections.unmodifiableSet(attributes.keySet());
+            List<String> attributes = info.getRequiredFields();
+            if (attributes.size()>0) {
+            	HashSet<String> set = new HashSet<String>(attributes);
+                return Collections.unmodifiableSet(set);
             }
         }
         catch (XMPPException xe) {

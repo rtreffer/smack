@@ -432,7 +432,6 @@ public class PacketParserUtils {
 
      private static Registration parseRegistration(XmlPullParser parser) throws Exception {
         Registration registration = new Registration();
-        Map<String, String> fields = null;
         boolean done = false;
         while (!done) {
             int eventType = parser.next();
@@ -442,19 +441,21 @@ public class PacketParserUtils {
                 if (parser.getNamespace().equals("jabber:iq:register")) {
                     String name = parser.getName();
                     String value = "";
-                    if (fields == null) {
-                        fields = new HashMap<String, String>();
-                    }
-
+                    
                     if (parser.next() == XmlPullParser.TEXT) {
                         value = parser.getText();
+                        if(name.equals("instructions")){
+                        	registration.setInstructions(value);
+                        }
+                        else{
+                        	registration.addAttribute(name, value);
+                        }
                     }
-                    // Ignore instructions, but anything else should be added to the map.
-                    if (!name.equals("instructions")) {
-                        fields.put(name, value);
+                    else if(name.equals("registered")){
+                    	registration.setRegistered(true);
                     }
-                    else {
-                        registration.setInstructions(value);
+                    else{
+                    	registration.addRequiredField(name);
                     }
                 }
                 // Otherwise, it must be a packet extension.
@@ -472,7 +473,6 @@ public class PacketParserUtils {
                 }
             }
         }
-        registration.setAttributes(fields);
         return registration;
     }
 

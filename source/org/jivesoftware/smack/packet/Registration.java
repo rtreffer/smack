@@ -20,6 +20,9 @@
 
 package org.jivesoftware.smack.packet;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -48,7 +51,10 @@ import java.util.Map;
 public class Registration extends IQ {
 
     private String instructions = null;
-    private Map<String, String> attributes = null;
+    private Map<String, String> attributes = new HashMap<String,String>();
+    private List<String> requiredFields = new ArrayList<String>();
+    private boolean registered = false;
+    private boolean remove = false;
 
     /**
      * Returns the registration instructions, or <tt>null</tt> if no instructions
@@ -78,29 +84,63 @@ public class Registration extends IQ {
     public Map<String, String> getAttributes() {
         return attributes;
     }
-
-    /**
-     * Sets the account attributes. The map must only contain String key/value pairs.
-     *
-     * @param attributes the account attributes.
-     */
-    public void setAttributes(Map<String, String> attributes) {
-        this.attributes = attributes;
+    
+    public void addRequiredField(String field){
+    	requiredFields.add(field);
+    }
+    
+    public List<String> getRequiredFields(){
+    	return requiredFields;
+    }
+    
+    public void addAttribute(String key, String value){
+    	attributes.put(key, value);
+    }
+    
+    public void setRegistered(boolean registered){
+    	this.registered = registered;
+    }
+    
+    public boolean isRegistered(){
+    	return this.registered;
+    }
+    
+    public String getField(String key){
+    	return attributes.get(key);
+    }
+    
+    public List<String> getFieldNames(){
+    	return new ArrayList<String>(attributes.keySet());
+    }
+    
+    public void setUsername(String username){
+    	attributes.put("username", username);
+    }
+    
+    public void setPassword(String password){
+    	attributes.put("password", password);
+    }
+    
+    public void setRemove(boolean remove){
+    	this.remove = remove;
     }
 
     public String getChildElementXML() {
         StringBuilder buf = new StringBuilder();
         buf.append("<query xmlns=\"jabber:iq:register\">");
-        if (instructions != null) {
+        if (instructions != null && !remove) {
             buf.append("<instructions>").append(instructions).append("</instructions>");
         }
-        if (attributes != null && attributes.size() > 0) {
+        if (attributes != null && attributes.size() > 0 && !remove) {
             for (String name : attributes.keySet()) {
                 String value = attributes.get(name);
                 buf.append("<").append(name).append(">");
                 buf.append(value);
                 buf.append("</").append(name).append(">");
             }
+        }
+        else if(remove){
+        	buf.append("</remove>");
         }
         // Add packet extensions, if any are defined.
         buf.append(getExtensionsXML());

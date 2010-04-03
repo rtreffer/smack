@@ -17,9 +17,9 @@ import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Registration;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.packet.DiscoverInfo;
-import org.jivesoftware.smackx.packet.Register;
 import org.jivesoftware.smackx.packet.DiscoverInfo.Identity;
 
 public class Gateway {
@@ -28,7 +28,7 @@ public class Gateway {
 	private ServiceDiscoveryManager sdManager;
 	private Roster roster;
 	private String entityJID;
-	private Register registerInfo;
+	private Registration registerInfo;
 	private Identity identity;
 	private DiscoverInfo info;
 	
@@ -64,7 +64,7 @@ public class Gateway {
 		return identity;
 	}
 	
-	private Register getRegisterInfo(){
+	private Registration getRegisterInfo(){
 		if(registerInfo==null){
 			refreshRegisterInfo();
 		}
@@ -72,7 +72,7 @@ public class Gateway {
 	}
 	
 	private void refreshRegisterInfo(){
-		Register packet = new Register();
+		Registration packet = new Registration();
 		packet.setFrom(connection.getUser());
 		packet.setType(IQ.Type.GET);
 		packet.setTo(entityJID);
@@ -80,8 +80,8 @@ public class Gateway {
 			connection.createPacketCollector(new PacketIDFilter(packet.getPacketID()));
 		connection.sendPacket(packet);
 		Packet result = collector.nextResult(SmackConfiguration.getPacketReplyTimeout());
-		if(result instanceof Register){ 
-			Register register = (Register)result;
+		if(result instanceof Registration){ 
+			Registration register = (Registration)result;
 			this.registerInfo = register;
 		}
 	}
@@ -139,14 +139,14 @@ public class Gateway {
 		if(getRegisterInfo().isRegistered()) {
 			throw new IllegalStateException("You are already registered with this gateway");
 		}
-		Register register = new Register();
+		Registration register = new Registration();
 		register.setFrom(connection.getUser());
 		register.setTo(entityJID);
 		register.setType(IQ.Type.SET);
 		register.setUsername(username);
 		register.setPassword(password);
 		for(String s : fields.keySet()){
-			register.addField(s, fields.get(s));
+			register.addAttribute(s, fields.get(s));
 		}
 		PacketCollector resultCollector = 
 			connection.createPacketCollector(new PacketIDFilter(register.getPacketID())); 
@@ -172,7 +172,7 @@ public class Gateway {
 	}
 	
 	public void unregister() throws XMPPException{
-		Register register = new Register();
+		Registration register = new Registration();
 		register.setFrom(connection.getUser());
 		register.setTo(entityJID);
 		register.setType(IQ.Type.SET);
