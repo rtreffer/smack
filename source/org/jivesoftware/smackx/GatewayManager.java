@@ -21,7 +21,7 @@ import org.jivesoftware.smackx.packet.DiscoverItems.Item;
  * This class discovers available gateways on the users servers, and
  * can give you also a list of gateways the you user is registered with which
  * are not on his server. All actual interaction with a gateway is handled in the
- * class {@link Gateway}.
+ * class {@see Gateway}.
  * @author Till Klocke
  *
  */

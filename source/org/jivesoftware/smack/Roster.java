@@ -919,7 +919,6 @@ public class Roster {
     
     private class RosterResultListener implements PacketListener{
 
-		@Override
 		public void processPacket(Packet packet) {
 			if(packet instanceof IQ){
 				IQ result = (IQ)packet;

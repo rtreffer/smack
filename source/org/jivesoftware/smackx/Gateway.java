@@ -308,7 +308,6 @@ public class Gateway {
 	
 	private class GatewayPresenceListener implements PacketListener{
 
-		@Override
 		public void processPacket(Packet packet) {
 			if(packet instanceof Presence){
 				Presence presence = (Presence)packet;
