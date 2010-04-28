@@ -87,7 +87,7 @@ public class Gateway {
 		connection.sendPacket(packet);
 		Packet result = collector.nextResult(SmackConfiguration.getPacketReplyTimeout());
 		collector.cancel();
-		if(result instanceof Registration){ 
+		if(result instanceof Registration && result.getError()==null){ 
 			Registration register = (Registration)result;
 			this.registerInfo = register;
 		}
@@ -224,6 +224,9 @@ public class Gateway {
 			if(resultIQ.getError()!=null){
 				throw new XMPPException(resultIQ.getError());
 			}
+			if(resultIQ.getType()==IQ.Type.ERROR){
+				throw new XMPPException(resultIQ.getError());
+			}
 			connection.addPacketListener(new GatewayPresenceListener(), 
 					new PacketTypeFilter(Presence.class));
 			roster.createEntry(entityJID, getIdentity().getName(), new String[]{});
@@ -262,6 +265,9 @@ public class Gateway {
 		if(result!=null && result instanceof IQ){
 			IQ resultIQ = (IQ)result;
 			if(resultIQ.getError()!=null){
+				throw new XMPPException(resultIQ.getError());
+			}
+			if(resultIQ.getType()==IQ.Type.ERROR){
 				throw new XMPPException(resultIQ.getError());
 			}
 			RosterEntry gatewayEntry = roster.getEntry(entityJID);
