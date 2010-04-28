@@ -293,7 +293,7 @@ public class Roster {
     private void insertRosterItem(RosterPacket.Item item, Collection<String> addedEntries,
     		Collection<String> updatedEntries, Collection<String> deletedEntries){
     	RosterEntry entry = new RosterEntry(item.getUser(), item.getName(),
-                item.getItemType(), item.getItemStatus(), connection);
+                item.getItemType(), item.getItemStatus(), this, connection);
 
         // If the packet is of the type REMOVE then remove the entry
         if (RosterPacket.ItemType.remove.equals(item.getItemType())) {
