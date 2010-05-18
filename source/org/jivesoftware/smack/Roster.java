@@ -930,13 +930,13 @@ public class Roster {
 		            	for(RosterPacket.Item item : persistentStorage.getEntries()){
 		            		insertRosterItem(item,addedEntries,updatedEntries,deletedEntries);
 		            	}
-		            	synchronized (Roster.this) {
-		                    rosterInitialized = true;
-		                    Roster.this.notifyAll();
-		                }
-		            	fireRosterChangedEvent(addedEntries,updatedEntries,deletedEntries);
+                            }
+		            synchronized (Roster.this) {
+		                rosterInitialized = true;
+		                Roster.this.notifyAll();
 		            }
-				}
+		            fireRosterChangedEvent(addedEntries,updatedEntries,deletedEntries);
+			    }
 			}
 			connection.removePacketListener(this);
 		}
