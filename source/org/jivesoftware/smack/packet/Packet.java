@@ -439,10 +439,14 @@ public abstract class Packet {
         return this.xmlns;
     }
 
+    /**
+     * Returns the default language used for all messages containing localized content.
+     * 
+     * @return the default language
+     */
     public static String getDefaultLanguage() {
         return DEFAULT_LANGUAGE;
     }
-
 
     public boolean equals(Object o) {
         if (this == o) return true;

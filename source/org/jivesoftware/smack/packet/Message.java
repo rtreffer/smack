@@ -598,24 +598,27 @@ public class Message extends Packet {
             return message;
         }
 
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) { return false; }
-
-            Body otherBody = (Body) o;
-
-            if (language != null ? !language.equals(otherBody.language) : otherBody.language != null) {
-                return false;
-            }
-            return message.equals(otherBody.message);
-
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + this.language.hashCode();
+            result = prime * result + this.message.hashCode();
+            return result;
         }
 
-        public int hashCode() {
-            int result;
-            result = message.hashCode();
-            result = 31 * result + (language != null ? language.hashCode() : 0);
-            return result;
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            Body other = (Body) obj;
+            // simplified comparison because language and message are always set
+            return this.language.equals(other.language) && this.message.equals(other.message);
         }
         
     }

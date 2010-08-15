@@ -153,7 +153,7 @@ public class PacketParserUtils {
     /**
      * Returns the content of a tag as string regardless of any tags included.
      * 
-     * @param parser the xml-pull-parser
+     * @param parser the XML pull parser
      * @return the content of a tag as string
      * @throws XmlPullParserException if parser encounters invalid XML
      * @throws IOException if an IO error occurs

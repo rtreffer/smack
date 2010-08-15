@@ -11,6 +11,11 @@ import static junit.framework.Assert.*;
 import static org.custommonkey.xmlunit.XMLAssert.*;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Locale;
+import java.util.Properties;
+
 import org.custommonkey.xmlunit.DetailedDiff;
 import org.custommonkey.xmlunit.Diff;
 import org.jivesoftware.smack.packet.Message;
@@ -454,6 +459,7 @@ public class PacketParserUtilsTest {
         for (int i = 0; i < availableLocales.length; i++) {
             if (availableLocales[i] != Locale.getDefault()) {
                 otherLanguage = availableLocales[i].getLanguage().toLowerCase();
+                break;
             }
         }
         return otherLanguage;
