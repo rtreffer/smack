@@ -226,12 +226,12 @@ public class AccountManager {
         }
         Registration reg = new Registration();
         reg.setType(IQ.Type.SET);
-        reg.setTo(connection.getServiceName());
-        reg.setUsername(username);
-        reg.setPassword(password);
+        reg.setTo(connection.getServiceName());        
         for(String s : attributes.keySet()){
         	reg.addAttribute(s, attributes.get(s));
         }
+        reg.setUsername(username);
+        reg.setPassword(password);
         PacketFilter filter = new AndFilter(new PacketIDFilter(reg.getPacketID()),
                 new PacketTypeFilter(IQ.class));
         PacketCollector collector = connection.createPacketCollector(filter);
