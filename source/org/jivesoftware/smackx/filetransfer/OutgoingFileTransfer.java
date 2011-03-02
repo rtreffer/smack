@@ -276,6 +276,7 @@ public class OutgoingFileTransfer extends FileTransfer {
 
 		transferThread = new Thread(new Runnable() {
 			public void run() {
+                setFileInfo(fileName, fileSize);
                 //Create packet filter
                 try {
 					outputStream = negotiateStream(fileName, fileSize, description);
