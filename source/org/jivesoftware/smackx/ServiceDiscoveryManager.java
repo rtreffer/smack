@@ -68,7 +68,7 @@ public class ServiceDiscoveryManager {
     private EntityCapsManager capsManager;
 
     private static Map<Connection, ServiceDiscoveryManager> instances =
-            new HashMap<Connection, ServiceDiscoveryManager>();
+            new ConcurrentHashMap<Connection, ServiceDiscoveryManager>();
 
     private Connection connection;
     private final List<String> features = new ArrayList<String>();
@@ -81,7 +81,7 @@ public class ServiceDiscoveryManager {
         // Add service discovery for normal XMPP c2s connections
         XMPPConnection.addConnectionCreationListener(new ConnectionCreationListener() {
             public void connectionCreated(Connection connection) {
-                getInstanceFor(connection);
+                new ServiceDiscoveryManager(connection);
             }
         });
     }
@@ -114,13 +114,7 @@ public class ServiceDiscoveryManager {
      * @return the ServiceDiscoveryManager associated with a given connection.
      */
     public static ServiceDiscoveryManager getInstanceFor(Connection connection) {
-        synchronized (instances) {
-            ServiceDiscoveryManager serviceDiscoveryManager = instances.get(connection);
-            if (serviceDiscoveryManager != null) {
-                return serviceDiscoveryManager;
-            }
-            return new ServiceDiscoveryManager(connection);
-        }
+        return instances.get(connection);
     }
 
     /**
@@ -240,9 +234,7 @@ public class ServiceDiscoveryManager {
         connection.addConnectionListener(new ConnectionListener() {
             public void connectionClosed() {
                 // Unregister this instance since the connection has been closed
-                synchronized (instances) {
-                    instances.remove(connection);
-                }
+                instances.remove(connection);
             }
 
             public void connectionClosedOnError(Exception e) {
