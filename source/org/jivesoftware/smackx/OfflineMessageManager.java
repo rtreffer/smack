@@ -77,7 +77,7 @@ public class OfflineMessageManager {
      * @throws XMPPException If the user is not allowed to make this request.
      */
     public boolean supportsFlexibleRetrieval() throws XMPPException {
-        DiscoverInfo info = ServiceDiscoveryManager.getInstanceFor(connection).discoverInfo(null);
+        DiscoverInfo info = ServiceDiscoveryManager.getInstanceFor(connection).discoverInfo(connection.getServiceName());
         return info.containsFeature(namespace);
     }
 
