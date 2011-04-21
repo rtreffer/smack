@@ -465,7 +465,7 @@ public class XMPPConnection extends Connection {
     public void disconnect(Presence unavailablePresence) {
         // If not connected, ignore this request.
         PacketReader packetReader = this.packetReader;
-        PacketWrite packetWriter = this.packetWriter;
+        PacketWriter packetWriter = this.packetWriter;
         if (packetReader == null || packetWriter == null) {
             return;
         }
