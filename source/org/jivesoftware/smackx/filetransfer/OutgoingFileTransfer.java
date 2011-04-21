@@ -283,6 +283,9 @@ public class OutgoingFileTransfer extends FileTransfer {
 				} catch (XMPPException e) {
 					handleXMPPException(e);
 					return;
+				} catch (IllegalStateException e) {
+					setStatus(FileTransfer.Status.error);
+					setException(e);
 				}
 				if (outputStream == null) {
 					return;
@@ -294,6 +297,9 @@ public class OutgoingFileTransfer extends FileTransfer {
 				try {
 					writeToStream(in, outputStream);
 				} catch (XMPPException e) {
+					setStatus(FileTransfer.Status.error);
+					setException(e);
+				} catch (IllegalStateException e) {
 					setStatus(FileTransfer.Status.error);
 					setException(e);
 				} finally {
