@@ -464,6 +464,8 @@ public class XMPPConnection extends Connection {
 
     public void disconnect(Presence unavailablePresence) {
         // If not connected, ignore this request.
+        PacketReader packetReader = this.packetReader;
+        PacketWrite packetWriter = this.packetWriter;
         if (packetReader == null || packetWriter == null) {
             return;
         }
@@ -479,9 +481,9 @@ public class XMPPConnection extends Connection {
         wasAuthenticated = false;
 
         packetWriter.cleanup();
-        packetWriter = null;
+        this.packetWriter = null;
         packetReader.cleanup();
-        packetReader = null;
+        this.packetReader = null;
     }
 
     public void sendPacket(Packet packet) {
