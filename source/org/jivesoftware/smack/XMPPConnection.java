@@ -578,9 +578,7 @@ public class XMPPConnection extends Connection {
      */
     private void initConnection() throws XMPPException {
         boolean isFirstInitialization = packetReader == null || packetWriter == null;
-        if (!isFirstInitialization) {
-            usingCompression = false;
-        }
+        usingCompression = false;
 
         // Set the reader and writer instance variables
         initReaderAndWriter();
