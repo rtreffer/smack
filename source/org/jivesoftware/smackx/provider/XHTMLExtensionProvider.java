@@ -81,7 +81,7 @@ public class XHTMLExtensionProvider implements PacketExtensionProvider {
                 else {
                     // This is a check for tags that are both a start and end tag like <br/>
                     // So that they aren't doubled
-                    if(!lastTag.equals(parser.getText())) {
+                    if(lastTag == null || !lastTag.equals(parser.getText())) {
                         buffer.append(parser.getText());
                     }
                 }
