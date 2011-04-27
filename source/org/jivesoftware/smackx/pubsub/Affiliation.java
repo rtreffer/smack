@@ -28,7 +28,7 @@ import org.jivesoftware.smack.packet.PacketExtension;
  */
 public class Affiliation implements PacketExtension
 {
-	protected String node;
+	protected String jid;
 	protected Type type;
 	
 	public enum Type
@@ -39,18 +39,18 @@ public class Affiliation implements PacketExtension
 	/**
 	 * Constructs an affiliation.
 	 * 
-	 * @param nodeId The node the user is affiliated with.
+	 * @param jid The JID with affiliation.
 	 * @param affiliation The type of affiliation.
 	 */
-	public Affiliation(String nodeId, Type affiliation)
+	public Affiliation(String jid, Type affiliation)
 	{
-		node = nodeId;
+		this.jid = jid;
 		type = affiliation;
 	}
 	
-	public String getNodeId()
+	public String getJid()
 	{
-		return node;
+		return jid;
 	}
 	
 	public Type getType()
@@ -60,7 +60,7 @@ public class Affiliation implements PacketExtension
 	
 	public String getElementName()
 	{
-		return "subscription";
+		return "affiliation";
 	}
 
 	public String getNamespace()
@@ -72,7 +72,7 @@ public class Affiliation implements PacketExtension
 	{
 		StringBuilder builder = new StringBuilder("<");
 		builder.append(getElementName());
-		appendAttribute(builder, "node", node);
+		appendAttribute(builder, "jid", jid);
 		appendAttribute(builder, "affiliation", type.toString());
 		
 		builder.append("/>");

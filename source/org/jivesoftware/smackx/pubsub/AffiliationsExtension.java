@@ -31,10 +31,26 @@ public class AffiliationsExtension extends NodeExtension
 		super(PubSubElementType.AFFILIATIONS);
 	}
 	
-	public AffiliationsExtension(List<Affiliation> subList)
+	public AffiliationsExtension(List<Affiliation> affiliationList)
 	{
 		super(PubSubElementType.AFFILIATIONS);
-		items = subList;
+
+		if (affiliationList != null)
+			items = affiliationList;
+	}
+
+	/**
+	 * Affiliations for the specified node.
+	 * 
+	 * @param nodeId
+	 * @param subList
+	 */
+	public AffiliationsExtension(String nodeId, List<Affiliation> affiliationList)
+	{
+		super(PubSubElementType.AFFILIATIONS, nodeId);
+
+		if (affiliationList != null)
+			items = affiliationList;
 	}
 
 	public List<Affiliation> getAffiliations()
@@ -53,6 +69,12 @@ public class AffiliationsExtension extends NodeExtension
 		{
 			StringBuilder builder = new StringBuilder("<");
 			builder.append(getElementName());
+			if (getNode() != null)
+			{
+				builder.append(" node='");
+				builder.append(getNode());
+				builder.append("'");
+			}
 			builder.append(">");
 			
 			for (Affiliation item : items)

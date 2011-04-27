@@ -31,7 +31,7 @@ public class AffiliationProvider extends EmbeddedExtensionProvider
 	@Override
 	protected PacketExtension createReturnExtension(String currentElement, String currentNamespace, Map<String, String> attributeMap, List<? extends PacketExtension> content)
 	{
-		return new Affiliation(attributeMap.get("node"), Affiliation.Type.valueOf(attributeMap.get("affiliation")));
+		return new Affiliation(attributeMap.get("jid"), Affiliation.Type.valueOf(attributeMap.get("affiliation")));
 	}
 
 }
