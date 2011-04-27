@@ -322,9 +322,9 @@ public class ServiceDiscoveryManager {
                     // Add the client's identity and features if "node" is
                     // null or our entity caps version.
                     if (discoverInfo.getNode() == null || 
-                            (capsManager == null? true :
+                            capsManager == null ||
                              (capsManager.getNode() + "#" +
-                              getEntityCapsVersion()).equals(discoverInfo.getNode()))) {
+                              getEntityCapsVersion()).equals(discoverInfo.getNode())) {
                         addDiscoverInfoTo(response);
                     }
                     else {
@@ -748,7 +748,7 @@ public class ServiceDiscoveryManager {
         if (connection instanceof XMPPConnection) {
             if (capsManager != null) {
                 capsManager.calculateEntityCapsVersion(getOwnDiscoverInfo(),
-                        identityType, identityName, features, extendedInfo);
+                        identityType, identityName, extendedInfo);
                 //capsManager.notifyCapsVerListeners();
             }
         }
