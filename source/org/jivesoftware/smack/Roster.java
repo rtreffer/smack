@@ -479,7 +479,7 @@ public class Roster {
      * @return the number of entries in the roster.
      */
     public int getEntryCount() {
-		return getEntries().size();
+        return getEntries().size();
     }
 
     /**
@@ -532,7 +532,7 @@ public class Roster {
         if (user == null) {
             return null;
         }
-    	return entries.get(user.toLowerCase());
+        return entries.get(user.toLowerCase());
     }
 
     /**
@@ -555,7 +555,7 @@ public class Roster {
      * @return the roster group with the specified name.
      */
     public RosterGroup getGroup(String name) {
-		return groups.get(name);
+        return groups.get(name);
     }
 
     /**
@@ -564,7 +564,7 @@ public class Roster {
      * @return the number of groups in the roster.
      */
     public int getGroupCount() {
-		return groups.size();
+        return groups.size();
     }
 
     /**
@@ -573,7 +573,7 @@ public class Roster {
      * @return an iterator for all roster groups.
      */
     public Collection<RosterGroup> getGroups() {
-		return Collections.unmodifiableCollection(groups.values());
+        return Collections.unmodifiableCollection(groups.values());
     }
 
     /**
@@ -1030,7 +1030,7 @@ public class Roster {
                 rosterInitialized = true;
                 Roster.this.notifyAll();
             }
-           
+
             // Fire event for roster listeners.
             fireRosterChangedEvent(addedEntries, updatedEntries, deletedEntries);
         }

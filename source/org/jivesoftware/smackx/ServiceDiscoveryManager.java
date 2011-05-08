@@ -108,10 +108,10 @@ public class ServiceDiscoveryManager {
     }
 
     /**
-     * Returns the ServiceDiscoveryManager instance associated with a given connection.
+     * Returns the ServiceDiscoveryManager instance associated with a given Connection.
      * 
      * @param connection the connection used to look for the proper ServiceDiscoveryManager.
-     * @return the ServiceDiscoveryManager associated with a given connection.
+     * @return the ServiceDiscoveryManager associated with a given Connection.
      */
     public static ServiceDiscoveryManager getInstanceFor(Connection connection) {
         return instances.get(connection);
@@ -596,7 +596,6 @@ public class ServiceDiscoveryManager {
         if (result.getType() == IQ.Type.ERROR) {
             throw new XMPPException(result.getError());
         }
-
         return (DiscoverInfo) result;
     }
 

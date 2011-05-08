@@ -131,10 +131,9 @@ public class AccountManager {
             if (info == null) {
                 getRegistrationInfo();
             }
-            List<String> attributes = info.getRequiredFields();
-            if (attributes.size()>0) {
-            	HashSet<String> set = new HashSet<String>(attributes);
-                return Collections.unmodifiableSet(set);
+            Map<String, String> attributes = info.getAttributes();
+            if (attributes != null) {
+                return Collections.unmodifiableSet(attributes.keySet());
             }
         }
         catch (XMPPException xe) {
@@ -226,12 +225,10 @@ public class AccountManager {
         }
         Registration reg = new Registration();
         reg.setType(IQ.Type.SET);
-        reg.setTo(connection.getServiceName());        
-        for(String s : attributes.keySet()){
-        	reg.addAttribute(s, attributes.get(s));
-        }
-        reg.setUsername(username);
-        reg.setPassword(password);
+        reg.setTo(connection.getServiceName());
+        attributes.put("username",username);
+        attributes.put("password",password);
+        reg.setAttributes(attributes);
         PacketFilter filter = new AndFilter(new PacketIDFilter(reg.getPacketID()),
                 new PacketTypeFilter(IQ.class));
         PacketCollector collector = connection.createPacketCollector(filter);
@@ -259,8 +256,10 @@ public class AccountManager {
         Registration reg = new Registration();
         reg.setType(IQ.Type.SET);
         reg.setTo(connection.getServiceName());
-        reg.setUsername(StringUtils.parseName(connection.getUser()));
-        reg.setPassword(newPassword);
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("username",StringUtils.parseName(connection.getUser()));
+        map.put("password",newPassword);
+        reg.setAttributes(map);
         PacketFilter filter = new AndFilter(new PacketIDFilter(reg.getPacketID()),
                 new PacketTypeFilter(IQ.class));
         PacketCollector collector = connection.createPacketCollector(filter);
@@ -291,8 +290,10 @@ public class AccountManager {
         Registration reg = new Registration();
         reg.setType(IQ.Type.SET);
         reg.setTo(connection.getServiceName());
-        // To delete an account, we set remove to true
-        reg.setRemove(true);
+        Map<String, String> attributes = new HashMap<String, String>();
+        // To delete an account, we add a single attribute, "remove", that is blank.
+        attributes.put("remove", "");
+        reg.setAttributes(attributes);
         PacketFilter filter = new AndFilter(new PacketIDFilter(reg.getPacketID()),
                 new PacketTypeFilter(IQ.class));
         PacketCollector collector = connection.createPacketCollector(filter);

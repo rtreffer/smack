@@ -37,6 +37,7 @@ import java.util.TimeZone;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.provider.PacketExtensionProvider;
+import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.packet.DelayInformation;
 import org.xmlpull.v1.XmlPullParser;
 
@@ -73,7 +74,7 @@ public class DelayInformationProvider implements PacketExtensionProvider {
     private static Map<String, DateFormat> formats = new HashMap<String, DateFormat>();
     static {
         formats.put("^\\d+T\\d+:\\d+:\\d+$", DelayInformation.XEP_0091_UTC_FORMAT);
-        formats.put("^\\d+-\\d+-\\d+T\\d+:\\d+:\\d+\\.\\d+Z$", Packet.XEP_0082_UTC_FORMAT);
+        formats.put("^\\d+-\\d+-\\d+T\\d+:\\d+:\\d+\\.\\d+Z$", StringUtils.XEP_0082_UTC_FORMAT);
         formats.put("^\\d+-\\d+-\\d+T\\d+:\\d+:\\d+Z$", XEP_0082_UTC_FORMAT_WITHOUT_MILLIS);
     }
     
