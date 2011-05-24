@@ -432,6 +432,8 @@ public class XMPPConnection extends Connection {
 
     public void disconnect(Presence unavailablePresence) {
         // If not connected, ignore this request.
+        PacketReader packetReader = this.packetReader;
+        PacketWriter packetWriter = this.packetWriter;
         if (packetReader == null || packetWriter == null) {
             return;
         }
@@ -442,13 +444,14 @@ public class XMPPConnection extends Connection {
             roster.cleanup();
             roster = null;
         }
+        chatManager = null;
 
         wasAuthenticated = false;
 
         packetWriter.cleanup();
-        packetWriter = null;
+        this.packetWriter = null;
         packetReader.cleanup();
-        packetReader = null;
+        this.packetReader = null;
     }
 
     public void sendPacket(Packet packet) {
@@ -546,9 +549,7 @@ public class XMPPConnection extends Connection {
      */
     private void initConnection() throws XMPPException {
         boolean isFirstInitialization = packetReader == null || packetWriter == null;
-        if (!isFirstInitialization) {
-            usingCompression = false;
-        }
+        usingCompression = false;
 
         // Set the reader and writer instance variables
         initReaderAndWriter();
@@ -636,6 +637,7 @@ public class XMPPConnection extends Connection {
                 socket = null;
             }
             this.setWasAuthenticated(authenticated);
+            chatManager = null;
             authenticated = false;
             connected = false;
 

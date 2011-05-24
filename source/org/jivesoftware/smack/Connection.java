@@ -159,7 +159,7 @@ public abstract class Connection {
     /**
      * The ChatManager keeps track of references to all current chats.
      */
-    private ChatManager chatManager = null;
+    protected ChatManager chatManager = null;
 
     /**
      * The SmackDebugger allows to log and debug XML traffic.

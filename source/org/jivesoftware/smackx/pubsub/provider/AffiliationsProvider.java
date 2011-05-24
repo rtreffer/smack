@@ -32,7 +32,7 @@ import org.jivesoftware.smackx.pubsub.AffiliationsExtension;
 	@Override
 	protected PacketExtension createReturnExtension(String currentElement, String currentNamespace, Map<String, String> attributeMap, List<? extends PacketExtension> content)
 	{
-        return new AffiliationsExtension((List<Affiliation>)content);
+        return new AffiliationsExtension(attributeMap.get("node"), (List<Affiliation>)content);
 	}
 
 }

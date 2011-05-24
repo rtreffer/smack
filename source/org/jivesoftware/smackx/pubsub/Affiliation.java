@@ -28,6 +28,7 @@ import org.jivesoftware.smack.packet.PacketExtension;
  */
 public class Affiliation implements PacketExtension
 {
+	protected String jid;
 	protected String node;
 	protected Type type;
 	
@@ -39,16 +40,34 @@ public class Affiliation implements PacketExtension
 	/**
 	 * Constructs an affiliation.
 	 * 
-	 * @param nodeId The node the user is affiliated with.
+	 * @param jid The JID with affiliation.
 	 * @param affiliation The type of affiliation.
 	 */
-	public Affiliation(String nodeId, Type affiliation)
+	public Affiliation(String jid, Type affiliation)
 	{
-		node = nodeId;
+		this(jid, null, affiliation);
+	}
+	
+	/**
+	 * Constructs an affiliation.
+	 * 
+	 * @param jid The JID with affiliation.
+	 * @param node The node with affiliation.
+	 * @param affiliation The type of affiliation.
+	 */
+	public Affiliation(String jid, String node, Type affiliation)
+	{
+		this.jid = jid;
+		this.node = node;
 		type = affiliation;
 	}
 	
-	public String getNodeId()
+	public String getJid()
+	{
+		return jid;
+	}
+	
+	public String getNode()
 	{
 		return node;
 	}
@@ -60,7 +79,7 @@ public class Affiliation implements PacketExtension
 	
 	public String getElementName()
 	{
-		return "subscription";
+		return "affiliation";
 	}
 
 	public String getNamespace()
@@ -72,7 +91,9 @@ public class Affiliation implements PacketExtension
 	{
 		StringBuilder builder = new StringBuilder("<");
 		builder.append(getElementName());
-		appendAttribute(builder, "node", node);
+		if (node != null)
+			appendAttribute(builder, "node", node);
+		appendAttribute(builder, "jid", jid);
 		appendAttribute(builder, "affiliation", type.toString());
 		
 		builder.append("/>");
