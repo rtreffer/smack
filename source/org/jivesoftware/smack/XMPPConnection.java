@@ -580,6 +580,8 @@ public class XMPPConnection extends Connection {
      * @throws XMPPException if establishing a connection to the server fails.
      */
     private void initConnection() throws XMPPException {
+        PacketReader packetReader = this.packetReader;
+        PacketWriter packetWriter = this.packetWriter;
         boolean isFirstInitialization = packetReader == null || packetWriter == null;
         usingCompression = false;
 
@@ -588,8 +590,8 @@ public class XMPPConnection extends Connection {
 
         try {
             if (isFirstInitialization) {
-                packetWriter = new PacketWriter(this);
-                packetReader = new PacketReader(this);
+                this.packetWriter = packetWriter = new PacketWriter(this);
+                this.packetReader = packetReader = new PacketReader(this);
 
                 // If debugging is enabled, we should start the thread that will listen for
                 // all packets and then log them.
@@ -638,14 +640,14 @@ public class XMPPConnection extends Connection {
                     packetWriter.shutdown();
                 }
                 catch (Throwable ignore) { /* ignore */ }
-                packetWriter = null;
+                this.packetWriter = null;
             }
             if (packetReader != null) {
                 try {
                     packetReader.shutdown();
                 }
                 catch (Throwable ignore) { /* ignore */ }
-                packetReader = null;
+                this.packetReader = null;
             }
             if (reader != null) {
                 try {
