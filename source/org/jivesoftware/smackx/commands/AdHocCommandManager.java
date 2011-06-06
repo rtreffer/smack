@@ -37,10 +37,12 @@ import org.jivesoftware.smackx.packet.DiscoverInfo;
 import org.jivesoftware.smackx.packet.DiscoverInfo.Identity;
 import org.jivesoftware.smackx.packet.DiscoverItems;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -68,8 +70,8 @@ public class AdHocCommandManager {
      * Map a Connection with it AdHocCommandManager. This map have a key-value
      * pair for every active connection.
      */
-    private static Map<Connection, AdHocCommandManager> instances =
-            new ConcurrentHashMap<Connection, AdHocCommandManager>();
+    private static Map<Connection, WeakReference<AdHocCommandManager>> instances =
+            new WeakHashMap<Connection, WeakReference<AdHocCommandManager>>();
 
     /**
      * Register the listener for all the connection creations. When a new
@@ -91,8 +93,12 @@ public class AdHocCommandManager {
      * @param connection the XMPP connection.
      * @return the AdHocCommandManager associated with the connection.
      */
-    public static AdHocCommandManager getAddHocCommandsManager(Connection connection) {
-        return instances.get(connection);
+    public synchronized static AdHocCommandManager getAddHocCommandsManager(Connection connection) {
+        WeakReference<AdHocCommandManager> reference = instances.get(connection);
+        if (reference == null)
+            return null;
+        else
+            return reference.get();
     }
 
     /**
@@ -253,25 +259,33 @@ public class AdHocCommandManager {
      */
     private void init() {
         // Register the new instance and associate it with the connection
-        instances.put(connection, this);
+        synchronized (AdHocCommandManager.this) {
+            instances.put(connection, new WeakReference<AdHocCommandManager>(this));
+        }
 
         // Add a listener to the connection that removes the registered instance
         // when the connection is closed
         connection.addConnectionListener(new ConnectionListener() {
             public void connectionClosed() {
                 // Unregister this instance since the connection has been closed
-                instances.remove(connection);
+                synchronized (AdHocCommandManager.this) {
+                    instances.remove(connection);
+                }
             }
 
             public void connectionClosedOnError(Exception e) {
                 // Unregister this instance since the connection has been closed
-                instances.remove(connection);
+                synchronized (AdHocCommandManager.this) {
+                    instances.remove(connection);
+                }
             }
 
             public void reconnectionSuccessful() {
                 // Register this instance since the connection has been
                 // reestablished
-                instances.put(connection, AdHocCommandManager.this);
+                synchronized (AdHocCommandManager.this) {
+                    instances.put(connection, new WeakReference<AdHocCommandManager>(AdHocCommandManager.this));
+                }
             }
 
             public void reconnectingIn(int seconds) {

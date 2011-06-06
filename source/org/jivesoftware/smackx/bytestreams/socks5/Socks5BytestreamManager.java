@@ -14,15 +14,16 @@
 package org.jivesoftware.smackx.bytestreams.socks5;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
@@ -107,7 +108,9 @@ public final class Socks5BytestreamManager implements BytestreamManager {
                     public void reconnectionSuccessful() {
                     	// Register this instance since the connection has been
                     	// reestablished
-                    	managers.put(connection, manager);
+                        synchronized (Socks5BytestreamManager.class) {
+                            managers.put(connection, new WeakReference<Socks5BytestreamManager>(manager));
+                        }
                     }
 
                 });
@@ -128,7 +131,8 @@ public final class Socks5BytestreamManager implements BytestreamManager {
     private final static Random randomGenerator = new Random();
 
     /* stores one Socks5BytestreamManager for each XMPP connection */
-    private final static Map<Connection, Socks5BytestreamManager> managers = new HashMap<Connection, Socks5BytestreamManager>();
+    private final static Map<Connection, WeakReference<Socks5BytestreamManager>> managers =
+        new WeakHashMap<Connection, WeakReference<Socks5BytestreamManager>>();
 
     /* XMPP connection */
     private final Connection connection;
@@ -183,10 +187,15 @@ public final class Socks5BytestreamManager implements BytestreamManager {
         if (connection == null) {
             return null;
         }
-        Socks5BytestreamManager manager = managers.get(connection);
+        WeakReference<Socks5BytestreamManager> reference = managers.get(connection);
+        Socks5BytestreamManager manager;
+        if (reference == null)
+            manager = null;
+        else
+            manager = reference.get();
         if (manager == null) {
             manager = new Socks5BytestreamManager(connection);
-            managers.put(connection, manager);
+            managers.put(connection, new WeakReference<Socks5BytestreamManager>(manager));
             manager.activate();
         }
         return manager;
@@ -300,12 +309,13 @@ public final class Socks5BytestreamManager implements BytestreamManager {
         this.proxyBlacklist.clear();
         this.ignoredBytestreamRequests.clear();
 
-        // remove manager from static managers map
-        managers.remove(this.connection);
-
-        // shutdown local SOCKS5 proxy if there are no more managers for other connections
-        if (managers.size() == 0) {
-            Socks5Proxy.getSocks5Proxy().stop();
+        synchronized (Socks5BytestreamManager.class) {
+            // remove manager from static managers map
+            managers.remove(this.connection);
+            // shutdown local SOCKS5 proxy if there are no more managers for other connections
+            if (managers.size() == 0) {
+        		Socks5Proxy.getSocks5Proxy().stop();
+            }
         }
 
         // remove feature from service discovery

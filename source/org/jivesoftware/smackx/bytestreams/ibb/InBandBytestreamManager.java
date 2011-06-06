@@ -13,12 +13,13 @@
  */
 package org.jivesoftware.smackx.bytestreams.ibb;
 
+import java.lang.ref.WeakReference;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jivesoftware.smack.AbstractConnectionListener;
@@ -113,7 +114,9 @@ public class InBandBytestreamManager implements BytestreamManager {
                     public void reconnectionSuccessful() {
                     	// Register this instance since the connection has been
                     	// reestablished
-                    	managers.put(connection, manager);
+                        synchronized (InBandBytestreamManager.class) {
+                            managers.put(connection, new WeakReference<InBandBytestreamManager>(manager));
+                        }
                     }
 
                 });
@@ -139,7 +142,8 @@ public class InBandBytestreamManager implements BytestreamManager {
     private final static Random randomGenerator = new Random();
 
     /* stores one InBandBytestreamManager for each XMPP connection */
-    private final static Map<Connection, InBandBytestreamManager> managers = new HashMap<Connection, InBandBytestreamManager>();
+    private final static Map<Connection, WeakReference<InBandBytestreamManager>> managers =
+        new WeakHashMap<Connection, WeakReference<InBandBytestreamManager>>();
 
     /* XMPP connection */
     private final Connection connection;
@@ -193,10 +197,15 @@ public class InBandBytestreamManager implements BytestreamManager {
     public static synchronized InBandBytestreamManager getByteStreamManager(Connection connection) {
         if (connection == null)
             return null;
-        InBandBytestreamManager manager = managers.get(connection);
+        WeakReference<InBandBytestreamManager> reference = managers.get(connection);
+        InBandBytestreamManager manager;
+        if (reference == null)
+            manager = null;
+        else
+            manager = reference.get();
         if (manager == null) {
             manager = new InBandBytestreamManager(connection);
-            managers.put(connection, manager);
+            managers.put(connection, new WeakReference<InBandBytestreamManager>(manager));
         }
         return manager;
     }
@@ -535,7 +544,9 @@ public class InBandBytestreamManager implements BytestreamManager {
     private void disableService() {
 
         // remove manager from static managers map
-        managers.remove(connection);
+        synchronized (InBandBytestreamManager.class) {
+            managers.remove(connection);
+        }
 
         // remove all listeners registered by this manager
         this.connection.removePacketListener(this.initiationListener);

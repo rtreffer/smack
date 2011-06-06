@@ -35,6 +35,7 @@ import org.jivesoftware.smackx.packet.DiscoverItems;
 import org.jivesoftware.smackx.packet.DataForm;
 
 import java.util.*;
+import java.lang.ref.WeakReference;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -67,8 +68,8 @@ public class ServiceDiscoveryManager {
 
     private EntityCapsManager capsManager;
 
-    private static Map<Connection, ServiceDiscoveryManager> instances =
-            new ConcurrentHashMap<Connection, ServiceDiscoveryManager>();
+    private static Map<Connection, WeakReference<ServiceDiscoveryManager>> instances =
+        new WeakHashMap<Connection, WeakReference<ServiceDiscoveryManager>>();
 
     private Connection connection;
     private final List<String> features = new ArrayList<String>();
@@ -113,8 +114,12 @@ public class ServiceDiscoveryManager {
      * @param connection the connection used to look for the proper ServiceDiscoveryManager.
      * @return the ServiceDiscoveryManager associated with a given connection.
      */
-    public static ServiceDiscoveryManager getInstanceFor(Connection connection) {
-        return instances.get(connection);
+    public synchronized static ServiceDiscoveryManager getInstanceFor(Connection connection) {
+        WeakReference<ServiceDiscoveryManager> reference = instances.get(connection);
+        if (reference == null)
+            return null;
+        else
+            return reference.get();
     }
 
     /**
@@ -228,24 +233,32 @@ public class ServiceDiscoveryManager {
      */
     private void init() {
         // Register the new instance and associate it with the connection 
-        instances.put(connection, this);
+        synchronized (ServiceDiscoveryManager.class) {
+            instances.put(connection, new WeakReference<ServiceDiscoveryManager>(this));
+        }
         // Add a listener to the connection that removes the registered instance when
         // the connection is closed
         connection.addConnectionListener(new ConnectionListener() {
             public void connectionClosed() {
                 // Unregister this instance since the connection has been closed
-                instances.remove(connection);
+                synchronized (ServiceDiscoveryManager.class) {
+                    instances.remove(connection);
+                }
             }
 
             public void connectionClosedOnError(Exception e) {
                 // Unregister this instance since the connection has been closed
-                instances.remove(connection);
+                synchronized (ServiceDiscoveryManager.class) {
+                    instances.remove(connection);
+                }
             }
 
             public void reconnectionSuccessful() {
                 // Register this instance since the connection has been
                 // reestablished
-                instances.put(connection, ServiceDiscoveryManager.this);
+                synchronized (ServiceDiscoveryManager.class) {
+                    instances.put(connection, new WeakReference<ServiceDiscoveryManager>(ServiceDiscoveryManager.this));
+                }
             }
 
             public void reconnectionFailed(Exception e) {
