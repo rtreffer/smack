@@ -95,7 +95,14 @@ public class PrivacyListManager {
             }
 
             public void connectionClosedOnError(Exception e) {
-                // ignore
+                // Unregister this instance since the connection has been closed
+                instances.remove(connection);
+            }
+
+            public void reconnectionSuccessful() {
+                // Register this instance since the connection has been
+                // reestablished
+                instances.put(connection, PrivacyListManager.this);
             }
 
             public void reconnectionFailed(Exception e) {
@@ -103,10 +110,6 @@ public class PrivacyListManager {
             }
 
             public void reconnectingIn(int seconds) {
-                // ignore
-            }
-
-            public void reconnectionSuccessful() {
                 // ignore
             }
         });

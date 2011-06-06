@@ -89,7 +89,7 @@ public final class Socks5BytestreamManager implements BytestreamManager {
     static {
         Connection.addConnectionCreationListener(new ConnectionCreationListener() {
 
-            public void connectionCreated(Connection connection) {
+            public void connectionCreated(final Connection connection) {
                 final Socks5BytestreamManager manager;
                 manager = Socks5BytestreamManager.getBytestreamManager(connection);
 
@@ -98,6 +98,16 @@ public final class Socks5BytestreamManager implements BytestreamManager {
 
                     public void connectionClosed() {
                         manager.disableService();
+                    }
+
+                    public void connectionClosedOnError(Exception e) {
+                    	manager.disableService();
+                    }
+
+                    public void reconnectionSuccessful() {
+                    	// Register this instance since the connection has been
+                    	// reestablished
+                    	managers.put(connection, manager);
                     }
 
                 });

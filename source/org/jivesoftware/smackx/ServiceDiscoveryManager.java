@@ -238,7 +238,14 @@ public class ServiceDiscoveryManager {
             }
 
             public void connectionClosedOnError(Exception e) {
-                // ignore
+                // Unregister this instance since the connection has been closed
+                instances.remove(connection);
+            }
+
+            public void reconnectionSuccessful() {
+                // Register this instance since the connection has been
+                // reestablished
+                instances.put(connection, ServiceDiscoveryManager.this);
             }
 
             public void reconnectionFailed(Exception e) {
@@ -246,10 +253,6 @@ public class ServiceDiscoveryManager {
             }
 
             public void reconnectingIn(int seconds) {
-                // ignore
-            }
-
-            public void reconnectionSuccessful() {
                 // ignore
             }
         });

@@ -95,7 +95,7 @@ public class InBandBytestreamManager implements BytestreamManager {
      */
     static {
         Connection.addConnectionCreationListener(new ConnectionCreationListener() {
-            public void connectionCreated(Connection connection) {
+            public void connectionCreated(final Connection connection) {
                 final InBandBytestreamManager manager;
                 manager = InBandBytestreamManager.getByteStreamManager(connection);
 
@@ -104,6 +104,16 @@ public class InBandBytestreamManager implements BytestreamManager {
 
                     public void connectionClosed() {
                         manager.disableService();
+                    }
+
+                    public void connectionClosedOnError(Exception e) {
+                    	manager.disableService();
+                    }
+
+                    public void reconnectionSuccessful() {
+                    	// Register this instance since the connection has been
+                    	// reestablished
+                    	managers.put(connection, manager);
                     }
 
                 });
