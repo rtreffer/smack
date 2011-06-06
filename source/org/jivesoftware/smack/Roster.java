@@ -139,20 +139,7 @@ public class Roster {
 
         };
         
-        // if not connected add listener after successful login
-        if(!this.connection.isConnected()) {
-            Connection.addConnectionCreationListener(new ConnectionCreationListener() {
-                
-                public void connectionCreated(Connection connection) {
-                    if(connection.equals(Roster.this.connection)) {
-                        Roster.this.connection.addConnectionListener(connectionListener);
-                    }
-                    
-                }
-            });
-        } else {
-            connection.addConnectionListener(connectionListener);
-        }
+        connection.forceAddConnectionListener(connectionListener);
     }
 
     /**
