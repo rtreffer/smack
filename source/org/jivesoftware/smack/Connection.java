@@ -529,10 +529,26 @@ public abstract class Connection {
      * 
      * @param connectionListener a connection listener.
      */
+    @Deprecated
     public void addConnectionListener(ConnectionListener connectionListener) {
         if (!isConnected()) {
             throw new IllegalStateException("Not connected to server.");
         }
+        if (connectionListener == null) {
+            return;
+        }
+        if (!connectionListeners.contains(connectionListener)) {
+            connectionListeners.add(connectionListener);
+        }
+    }
+
+    /**
+     * Adds a connection listener to this connection that will be notified when
+     * the connection closes or fails.
+     * 
+     * @param connectionListener a connection listener.
+     */
+    public void forceAddConnectionListener(ConnectionListener connectionListener) {
         if (connectionListener == null) {
             return;
         }
