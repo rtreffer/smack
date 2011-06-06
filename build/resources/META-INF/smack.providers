@@ -505,6 +505,12 @@
     </iqProvider>
 
     <extensionProvider>
+    	<elementName>pubsub</elementName>
+        <namespace>http://jabber.org/protocol/pubsub</namespace>
+        <className>org.jivesoftware.smackx.pubsub.provider.PubSubElementProvider</className>
+    </extensionProvider>
+    
+    <extensionProvider>
     	<elementName>create</elementName>
         <namespace>http://jabber.org/protocol/pubsub</namespace>
         <className>org.jivesoftware.smackx.pubsub.provider.SimpleNodeProvider</className>
