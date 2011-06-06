@@ -460,7 +460,11 @@ class PacketReader {
 
         public void run() {
             for (ListenerWrapper listenerWrapper : connection.recvListeners.values()) {
-                listenerWrapper.notifyListener(packet);
+                try {
+                    listenerWrapper.notifyListener(packet);
+                } catch (RuntimeException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
