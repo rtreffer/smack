@@ -244,6 +244,23 @@ public class Roster {
         groups.put(name, group);
         return group;
     }
+    
+    /**
+     * Removes empty group.
+     * 
+     * @param name the name of the group.
+     * @throws IllegalStateException if group doesn't exists or is not empty.
+     */
+    public void removeEmptyGroup(String name) {
+		RosterGroup group = groups.get(name);
+		if (group == null) {
+			throw new IllegalArgumentException("Group with name " + name + " doesn't exists.");
+		}
+		if (group.getEntryCount() != 0) {
+			throw new IllegalArgumentException("Group " + name + " is not empty.");
+		}
+		groups.remove(name);
+    }
 
     /**
      * Creates a new roster entry and presence subscription. The server will asynchronously
