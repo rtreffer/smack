@@ -234,16 +234,16 @@ public class XMPPConnection extends Connection {
         authenticated = true;
         anonymous = false;
 
-        // Create the roster if it is not a reconnection or roster already created by getRoster()
-        if (this.roster == null) {
-        	if(rosterStorage==null){
-        		this.roster = new Roster(this);
+		if (config.isRosterLoadedAtLogin()) {
+			// Create the roster if it is not a reconnection or roster already
+			// created by getRoster()
+			if (this.roster == null) {
+				if (rosterStorage == null) {
+					this.roster = new Roster(this);
+				} else {
+					this.roster = new Roster(this, rosterStorage);
+				}
         	}
-        	else{
-        		this.roster = new Roster(this,rosterStorage);
-        	}
-        }
-        if (config.isRosterLoadedAtLogin()) {
             this.roster.reload();
         }
 
@@ -323,6 +323,9 @@ public class XMPPConnection extends Connection {
         }
 
         if (!config.isRosterLoadedAtLogin()) {
+			if (roster == null) {
+				roster = new Roster(this);
+			}
             roster.reload();
         }
         // If this is the first time the user has asked for the roster after calling
