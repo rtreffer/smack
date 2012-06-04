@@ -35,6 +35,7 @@ import org.jivesoftware.smackx.packet.DiscoverItems;
 import org.jivesoftware.smackx.packet.DataForm;
 
 import java.util.*;
+import java.lang.ref.WeakReference;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -67,8 +68,8 @@ public class ServiceDiscoveryManager {
 
     private EntityCapsManager capsManager;
 
-    private static Map<Connection, ServiceDiscoveryManager> instances =
-            new HashMap<Connection, ServiceDiscoveryManager>();
+    private static Map<Connection, WeakReference<ServiceDiscoveryManager>> instances =
+        new WeakHashMap<Connection, WeakReference<ServiceDiscoveryManager>>();
 
     private Connection connection;
     private final List<String> features = new ArrayList<String>();
@@ -81,7 +82,7 @@ public class ServiceDiscoveryManager {
         // Add service discovery for normal XMPP c2s connections
         XMPPConnection.addConnectionCreationListener(new ConnectionCreationListener() {
             public void connectionCreated(Connection connection) {
-                getInstanceFor(connection);
+                new ServiceDiscoveryManager(connection);
             }
         });
     }
@@ -108,19 +109,17 @@ public class ServiceDiscoveryManager {
     }
 
     /**
-     * Returns the ServiceDiscoveryManager instance associated with a given connection.
+     * Returns the ServiceDiscoveryManager instance associated with a given Connection.
      * 
      * @param connection the connection used to look for the proper ServiceDiscoveryManager.
-     * @return the ServiceDiscoveryManager associated with a given connection.
+     * @return the ServiceDiscoveryManager associated with a given Connection.
      */
-    public static ServiceDiscoveryManager getInstanceFor(Connection connection) {
-        synchronized (instances) {
-            ServiceDiscoveryManager serviceDiscoveryManager = instances.get(connection);
-            if (serviceDiscoveryManager != null) {
-                return serviceDiscoveryManager;
-            }
-            return new ServiceDiscoveryManager(connection);
-        }
+    public synchronized static ServiceDiscoveryManager getInstanceFor(Connection connection) {
+        WeakReference<ServiceDiscoveryManager> reference = instances.get(connection);
+        if (reference == null)
+            return null;
+        else
+            return reference.get();
     }
 
     /**
@@ -234,19 +233,32 @@ public class ServiceDiscoveryManager {
      */
     private void init() {
         // Register the new instance and associate it with the connection 
-        instances.put(connection, this);
+        synchronized (ServiceDiscoveryManager.class) {
+            instances.put(connection, new WeakReference<ServiceDiscoveryManager>(this));
+        }
         // Add a listener to the connection that removes the registered instance when
         // the connection is closed
         connection.addConnectionListener(new ConnectionListener() {
             public void connectionClosed() {
                 // Unregister this instance since the connection has been closed
-                synchronized (instances) {
+                synchronized (ServiceDiscoveryManager.class) {
                     instances.remove(connection);
                 }
             }
 
             public void connectionClosedOnError(Exception e) {
-                // ignore
+                // Unregister this instance since the connection has been closed
+                synchronized (ServiceDiscoveryManager.class) {
+                    instances.remove(connection);
+                }
+            }
+
+            public void reconnectionSuccessful() {
+                // Register this instance since the connection has been
+                // reestablished
+                synchronized (ServiceDiscoveryManager.class) {
+                    instances.put(connection, new WeakReference<ServiceDiscoveryManager>(ServiceDiscoveryManager.this));
+                }
             }
 
             public void reconnectionFailed(Exception e) {
@@ -254,10 +266,6 @@ public class ServiceDiscoveryManager {
             }
 
             public void reconnectingIn(int seconds) {
-                // ignore
-            }
-
-            public void reconnectionSuccessful() {
                 // ignore
             }
         });
@@ -330,9 +338,9 @@ public class ServiceDiscoveryManager {
                     // Add the client's identity and features if "node" is
                     // null or our entity caps version.
                     if (discoverInfo.getNode() == null || 
-                            (capsManager == null? true :
+                            capsManager == null ||
                              (capsManager.getNode() + "#" +
-                              getEntityCapsVersion()).equals(discoverInfo.getNode()))) {
+                              getEntityCapsVersion()).equals(discoverInfo.getNode())) {
                         addDiscoverInfoTo(response);
                     }
                     else {
@@ -604,7 +612,6 @@ public class ServiceDiscoveryManager {
         if (result.getType() == IQ.Type.ERROR) {
             throw new XMPPException(result.getError());
         }
-
         return (DiscoverInfo) result;
     }
 
@@ -756,7 +763,7 @@ public class ServiceDiscoveryManager {
         if (connection instanceof XMPPConnection) {
             if (capsManager != null) {
                 capsManager.calculateEntityCapsVersion(getOwnDiscoverInfo(),
-                        identityType, identityName, features, extendedInfo);
+                        identityType, identityName, extendedInfo);
                 //capsManager.notifyCapsVerListeners();
             }
         }

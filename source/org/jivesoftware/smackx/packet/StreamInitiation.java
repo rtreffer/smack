@@ -347,9 +347,7 @@ public class StreamInitiation extends IQ {
             }
 
             if (getDate() != null) {
-                synchronized (XEP_0082_UTC_FORMAT) {
-                    buffer.append("date=\"").append(XEP_0082_UTC_FORMAT.format(date)).append("\" ");
-                }
+                buffer.append("date=\"").append(StringUtils.formatXEP0082Date(date)).append("\" ");
             }
 
             if (getHash() != null) {

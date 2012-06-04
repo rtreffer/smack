@@ -25,6 +25,7 @@ import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Privacy;
 import org.jivesoftware.smack.packet.PrivacyItem;
 
+import java.lang.ref.WeakReference;
 import java.util.*;
 
 /**
@@ -43,7 +44,8 @@ import java.util.*;
 public class PrivacyListManager {
 
     // Keep the list of instances of this class.
-	private static Map<Connection, PrivacyListManager> instances = new Hashtable<Connection, PrivacyListManager>();
+	private static Map<Connection, WeakReference<PrivacyListManager>> instances =
+	    new WeakHashMap<Connection, WeakReference<PrivacyListManager>>();
 
 	private Connection connection;
 	private final List<PrivacyListListener> listeners = new ArrayList<PrivacyListListener>();
@@ -85,17 +87,32 @@ public class PrivacyListManager {
      */
     private void init() {
         // Register the new instance and associate it with the connection 
-        instances.put(connection, this);
+        synchronized (PrivacyListManager.class) {
+            instances.put(connection, new WeakReference<PrivacyListManager>(this));
+        }
         // Add a listener to the connection that removes the registered instance when
         // the connection is closed
         connection.addConnectionListener(new ConnectionListener() {
             public void connectionClosed() {
                 // Unregister this instance since the connection has been closed
-                instances.remove(connection);
+                synchronized (PrivacyListManager.class) {
+                    instances.remove(connection);
+                }
             }
 
             public void connectionClosedOnError(Exception e) {
-                // ignore
+                // Unregister this instance since the connection has been closed
+                synchronized (PrivacyListManager.class) {
+                    instances.remove(connection);
+            	}
+            }
+
+            public void reconnectionSuccessful() {
+                // Register this instance since the connection has been
+                // reestablished
+                synchronized (PrivacyListManager.class) {
+                    instances.put(connection, new WeakReference<PrivacyListManager>(PrivacyListManager.this));
+                }
             }
 
             public void reconnectionFailed(Exception e) {
@@ -103,10 +120,6 @@ public class PrivacyListManager {
             }
 
             public void reconnectingIn(int seconds) {
-                // ignore
-            }
-
-            public void reconnectionSuccessful() {
                 // ignore
             }
         });
@@ -160,8 +173,12 @@ public class PrivacyListManager {
      * @param connection the connection used to look for the proper PrivacyListManager.
      * @return the PrivacyListManager associated with a given Connection.
      */
-    public static PrivacyListManager getInstanceFor(Connection connection) {
-        return instances.get(connection);
+    public synchronized static PrivacyListManager getInstanceFor(Connection connection) {
+        WeakReference<PrivacyListManager> reference = instances.get(connection);
+        if (reference == null)
+            return null;
+        else
+            return reference.get();
     }
     
 	/**

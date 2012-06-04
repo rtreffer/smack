@@ -18,20 +18,16 @@ import java.util.Map;
 
 import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smackx.provider.EmbeddedExtensionProvider;
-import org.jivesoftware.smackx.pubsub.Affiliation;
+import org.jivesoftware.smackx.pubsub.PubSubElement;
 
 /**
- * Parses the affiliation element out of the reply stanza from the server
- * as specified in the <a href="http://xmpp.org/extensions/xep-0060.html#schemas-pubsub">affiliation schema</a>.
- * 
- * @author Robin Collier
+ * Parses the pubsub element out of the message stanza from the server.
  */
-public class AffiliationProvider extends EmbeddedExtensionProvider
+public class PubSubElementProvider extends EmbeddedExtensionProvider
 {
 	@Override
-	protected PacketExtension createReturnExtension(String currentElement, String currentNamespace, Map<String, String> attributeMap, List<? extends PacketExtension> content)
+	protected PacketExtension createReturnExtension(String currentElement, String currentNamespace, Map<String, String> attMap, List<? extends PacketExtension> content)
 	{
-		return new Affiliation(attributeMap.get("jid"), attributeMap.get("node"), Affiliation.Type.valueOf(attributeMap.get("affiliation")));
+	   	return new PubSubElement((List<PacketExtension>)content);
 	}
-
 }

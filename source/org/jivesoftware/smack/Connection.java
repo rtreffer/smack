@@ -159,7 +159,7 @@ public abstract class Connection {
     /**
      * The ChatManager keeps track of references to all current chats.
      */
-    private ChatManager chatManager = null;
+    protected ChatManager chatManager = null;
 
     /**
      * The SmackDebugger allows to log and debug XML traffic.
@@ -332,9 +332,13 @@ public abstract class Connection {
 
     /**
      * Logs in to the server using the strongest authentication mode supported by
-     * the server, then sets presence to available. If more than five seconds
-     * (default timeout) elapses in each step of the authentication process without
-     * a response from the server, or if an error occurs, a XMPPException will be thrown.<p>
+     * the server, then sets presence to available. If the server supports SASL authentication 
+     * then the user will be authenticated using SASL if not Non-SASL authentication will 
+     * be tried. If more than five seconds (default timeout) elapses in each step of the 
+     * authentication process without a response from the server, or if an error occurs, a 
+     * XMPPException will be thrown.<p>
+     * 
+     * Before logging in (i.e. authenticate) to the server the connection must be connected.
      * 
      * It is possible to log in without sending an initial available presence by using
      * {@link ConnectionConfiguration#setSendPresence(boolean)}. If this connection is
@@ -355,15 +359,13 @@ public abstract class Connection {
 
     /**
      * Logs in to the server using the strongest authentication mode supported by
-     * the server. If the server supports SASL authentication then the user will be
-     * authenticated using SASL if not Non-SASL authentication will be tried. If more than
-     * five seconds (default timeout) elapses in each step of the authentication process
-     * without a response from the server, or if an error occurs, a XMPPException will be
-     * thrown.<p>
+     * the server, then sets presence to available. If the server supports SASL authentication 
+     * then the user will be authenticated using SASL if not Non-SASL authentication will 
+     * be tried. If more than five seconds (default timeout) elapses in each step of the 
+     * authentication process without a response from the server, or if an error occurs, a 
+     * XMPPException will be thrown.<p>
      * 
      * Before logging in (i.e. authenticate) to the server the connection must be connected.
-     * For compatibility and easiness of use the connection will automatically connect to the
-     * server if not already connected.<p>
      * 
      * It is possible to log in without sending an initial available presence by using
      * {@link ConnectionConfiguration#setSendPresence(boolean)}. If this connection is
@@ -529,10 +531,26 @@ public abstract class Connection {
      * 
      * @param connectionListener a connection listener.
      */
+    @Deprecated
     public void addConnectionListener(ConnectionListener connectionListener) {
         if (!isConnected()) {
             throw new IllegalStateException("Not connected to server.");
         }
+        if (connectionListener == null) {
+            return;
+        }
+        if (!connectionListeners.contains(connectionListener)) {
+            connectionListeners.add(connectionListener);
+        }
+    }
+
+    /**
+     * Adds a connection listener to this connection that will be notified when
+     * the connection closes or fails.
+     * 
+     * @param connectionListener a connection listener.
+     */
+    public void forceAddConnectionListener(ConnectionListener connectionListener) {
         if (connectionListener == null) {
             return;
         }

@@ -30,7 +30,9 @@ import org.jivesoftware.smackx.provider.CapsExtensionProvider;
 import org.jivesoftware.smackx.packet.DiscoverInfo;
 import org.jivesoftware.smackx.packet.CapsExtension;
 import org.jivesoftware.smackx.packet.DataForm;
+import org.jivesoftware.smackx.packet.DiscoverInfo.Feature;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -248,7 +250,7 @@ public class EntityCapsManager {
 
     void calculateEntityCapsVersion(DiscoverInfo discoverInfo,
             String identityType,
-            String identityName, List<String> features,
+            String identityName,
             DataForm extendedInfo) {
         String s = "";
 
@@ -257,15 +259,12 @@ public class EntityCapsManager {
         s += "client/" + identityType + "//" + identityName + "<";
 
         // Add features
-        synchronized (features) {
-            SortedSet<String> fs = new TreeSet<String>();
-            for (String f : features) {
-                fs.add(f);
-            }
+        SortedSet<String> features = new TreeSet<String>();
+        for (Iterator<Feature> it = discoverInfo.getFeatures(); it.hasNext();)
+        	features.add(it.next().getVar());
 
-            for (String f : fs) {
-                s += f + "<";
-            }
+        for (String f : features) {
+            s += f + "<";
         }
 
         if (extendedInfo != null) {

@@ -25,6 +25,7 @@ import java.util.Date;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.provider.IQProvider;
+import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.packet.DataForm;
 import org.jivesoftware.smackx.packet.StreamInitiation;
 import org.jivesoftware.smackx.packet.StreamInitiation.File;
@@ -97,9 +98,7 @@ public class StreamInitiationProvider implements IQProvider {
                     Date fileDate = new Date();
                     if (date != null) {
                         try {
-                            synchronized (Packet.XEP_0082_UTC_FORMAT) {
-                                fileDate = Packet.XEP_0082_UTC_FORMAT.parse(date);
-                            }
+                            fileDate = StringUtils.parseXEP0082Date(date);
                         } catch (ParseException e) {
                             // couldn't parse date, use current date-time
                         }

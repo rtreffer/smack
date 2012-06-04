@@ -139,20 +139,7 @@ public class Roster {
 
         };
         
-        // if not connected add listener after successful login
-        if(!this.connection.isConnected()) {
-            Connection.addConnectionCreationListener(new ConnectionCreationListener() {
-                
-                public void connectionCreated(Connection connection) {
-                    if(connection.equals(Roster.this.connection)) {
-                        Roster.this.connection.addConnectionListener(connectionListener);
-                    }
-                    
-                }
-            });
-        } else {
-            connection.addConnectionListener(connectionListener);
-        }
+        connection.forceAddConnectionListener(connectionListener);
     }
 
     /**
@@ -256,6 +243,23 @@ public class Roster {
         RosterGroup group = new RosterGroup(name, connection);
         groups.put(name, group);
         return group;
+    }
+    
+    /**
+     * Removes empty group.
+     * 
+     * @param name the name of the group.
+     * @throws IllegalStateException if group doesn't exists or is not empty.
+     */
+    public void removeEmptyGroup(String name) {
+		RosterGroup group = groups.get(name);
+		if (group == null) {
+			throw new IllegalArgumentException("Group with name " + name + " doesn't exists.");
+		}
+		if (group.getEntryCount() != 0) {
+			throw new IllegalArgumentException("Group " + name + " is not empty.");
+		}
+		groups.remove(name);
     }
 
     /**
@@ -479,7 +483,7 @@ public class Roster {
      * @return the number of entries in the roster.
      */
     public int getEntryCount() {
-		return getEntries().size();
+        return getEntries().size();
     }
 
     /**
@@ -532,7 +536,7 @@ public class Roster {
         if (user == null) {
             return null;
         }
-    	return entries.get(user.toLowerCase());
+        return entries.get(user.toLowerCase());
     }
 
     /**
@@ -555,7 +559,7 @@ public class Roster {
      * @return the roster group with the specified name.
      */
     public RosterGroup getGroup(String name) {
-		return groups.get(name);
+        return groups.get(name);
     }
 
     /**
@@ -564,7 +568,7 @@ public class Roster {
      * @return the number of groups in the roster.
      */
     public int getGroupCount() {
-		return groups.size();
+        return groups.size();
     }
 
     /**
@@ -573,7 +577,7 @@ public class Roster {
      * @return an iterator for all roster groups.
      */
     public Collection<RosterGroup> getGroups() {
-		return Collections.unmodifiableCollection(groups.values());
+        return Collections.unmodifiableCollection(groups.values());
     }
 
     /**
@@ -1030,7 +1034,7 @@ public class Roster {
                 rosterInitialized = true;
                 Roster.this.notifyAll();
             }
-           
+
             // Fire event for roster listeners.
             fireRosterChangedEvent(addedEntries, updatedEntries, deletedEntries);
         }

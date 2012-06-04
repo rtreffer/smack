@@ -238,10 +238,9 @@ public class SASLAuthentication implements UserAuthentication {
 
                 // Wait until SASL negotiation finishes
                 synchronized (this) {
-                    long endTime = System.currentTimeMillis();
-                    while (!saslNegotiated && !saslFailed && (System.currentTimeMillis() < endTime)) {
+                    if (!saslNegotiated && !saslFailed) {
                         try {
-                            wait(Math.abs(System.currentTimeMillis() - endTime));
+                            wait(30000);
                         }
                         catch (InterruptedException e) {
                             // Ignore
@@ -424,10 +423,9 @@ public class SASLAuthentication implements UserAuthentication {
     private String bindResourceAndEstablishSession(String resource) throws XMPPException {
         // Wait until server sends response containing the <bind> element
         synchronized (this) {
-            long endTime = System.currentTimeMillis() + 30000;
-            while (!resourceBinded && (System.currentTimeMillis() < endTime)) {
+            if (!resourceBinded) {
                 try {
-                    wait(Math.abs(System.currentTimeMillis() - endTime));
+                    wait(30000);
                 }
                 catch (InterruptedException e) {
                     // Ignore

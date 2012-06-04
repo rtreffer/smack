@@ -276,12 +276,16 @@ public class OutgoingFileTransfer extends FileTransfer {
 
 		transferThread = new Thread(new Runnable() {
 			public void run() {
+                setFileInfo(fileName, fileSize);
                 //Create packet filter
                 try {
 					outputStream = negotiateStream(fileName, fileSize, description);
 				} catch (XMPPException e) {
 					handleXMPPException(e);
 					return;
+				} catch (IllegalStateException e) {
+					setStatus(FileTransfer.Status.error);
+					setException(e);
 				}
 				if (outputStream == null) {
 					return;
@@ -293,6 +297,9 @@ public class OutgoingFileTransfer extends FileTransfer {
 				try {
 					writeToStream(in, outputStream);
 				} catch (XMPPException e) {
+					setStatus(FileTransfer.Status.error);
+					setException(e);
+				} catch (IllegalStateException e) {
 					setStatus(FileTransfer.Status.error);
 					setException(e);
 				} finally {

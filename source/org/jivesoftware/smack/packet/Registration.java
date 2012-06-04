@@ -84,9 +84,14 @@ public class Registration extends IQ {
     public Map<String, String> getAttributes() {
         return attributes;
     }
-    
-    public void addRequiredField(String field){
-    	requiredFields.add(field);
+
+    /**
+     * Sets the account attributes. The map must only contain String key/value pairs.
+     *
+     * @param attributes the account attributes.
+     */
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
     }
     
     public List<String> getRequiredFields(){
